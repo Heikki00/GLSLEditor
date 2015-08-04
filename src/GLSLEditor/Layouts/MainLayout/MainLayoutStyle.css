@@ -1,0 +1,26 @@
+
+
+#FileTab_idle{
+    -fx-background-color: #d6d6d6;
+
+}
+
+
+#FileTab_hover{
+    -fx-background-color: #b9b9b9;
+
+}
+
+
+#FileTab_selected{
+    -fx-background-color: #969696;
+
+}
+
+#FileTabText_saved{
+
+}
+
+#FileTabText_unsaved{
+    -fx-font-weight: bold;
+}
