@@ -7,6 +7,7 @@ import GLSLEditor.Highlighting.Highlighter;
 import GLSLEditor.Hotkey.Hotkey;
 import GLSLEditor.Hotkey.Hotkeys;
 import GLSLEditor.Layouts.MainLayout.MainLayoutController;
+import GLSLEditor.Options.OptionsWindow;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -39,16 +40,18 @@ public class Editor extends Application{
         MainLayoutController c = loader.getController();
 
 
+
         scene = new Scene(root, 800, 600);
         window.setScene(scene);
+
+        scene.getStylesheets().add(getClass().getResource("Layouts/MainLayout/MainLayoutStyle.css").toExternalForm());
 
         codeArea = new CodeArea(c.mainCodeArea, this);
         fileBar = new FileBar(c.activeFileBar, this);
 
 
-        c.newMenuItem.setOnAction( e-> menuNew());
+        c.newMenuItem.setOnAction(e -> menuNew());
         Hotkeys.setHotkey("MenuNew", new Hotkey(this, new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN), () -> menuNew()));
-
 
 
         c.openMenuItem.setOnAction(e -> menuOpen());
@@ -65,17 +68,20 @@ public class Editor extends Application{
 
         c.closeMenuItem.setOnAction(e -> menuClose());
 
+        c.optionsMenuItem.setOnAction(e -> OptionsWindow.show());
+
+
 
         Highlighter.init(this);
+        OptionsWindow.init(this);
 
-        int i = 0;
 
-        scene.getStylesheets().add(getClass().getResource("MainLayout/MainLayoutStyle.css").toExternalForm());
+
 
         window.show();
 
 
-        c.activeFileBar.requestFocus();
+
 
     }
 
@@ -176,6 +182,7 @@ public class Editor extends Application{
         if(getActiveDocument() == null) return;
         fileBar.removeTab(fileBar.getSelectedTab());
     }
+
 
 
 
