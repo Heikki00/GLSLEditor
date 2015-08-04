@@ -4,7 +4,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="GLSLEditor.Layouts.OptionsLayout.OptionsLayoutController">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GLSLEditor.Layouts.OptionsLayout.OptionsLayoutController">
   <columnConstraints>
     <ColumnConstraints />
     <ColumnConstraints />
@@ -21,6 +21,7 @@
                <children>
                   <Label fx:id="GeneralOptionsTab" prefHeight="44.0" prefWidth="153.0" text="General" />
                   <Label fx:id="EditorOptionsTab" prefHeight="39.0" prefWidth="158.0" text="Editor" />
+                  <Label fx:id="HotkeyOptionsTab" prefHeight="36.0" prefWidth="159.0" text="Hotkeys" />
                </children>
             </VBox>
          </content>
