@@ -68,7 +68,7 @@ public class Editor extends Application{
 
         Highlighter.init(this);
 
-
+        int i = 0;
 
         scene.getStylesheets().add(getClass().getResource("MainLayout/MainLayoutStyle.css").toExternalForm());
 
