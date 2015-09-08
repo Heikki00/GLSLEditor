@@ -1,5 +1,6 @@
 package GLSLEditor.Highlighting;
 
+import GLSLEditor.CodeDatabase.CodeDatabase;
 import GLSLEditor.Editor;
 import org.fxmisc.richtext.StyleSpans;
 import org.fxmisc.richtext.StyleSpansBuilder;
@@ -19,14 +20,15 @@ public class Highlighter {
         editor.addStyle("Highlighting/HighLightStyles.css");
     }
 
-    private static String[] KEYWORDS = new String[]{"bool", "short", "int", "float", "double", "vec2", "vec3", "vec4", "mat2", "mat3", "mat4"};
+    private static String SCALAR_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLscalars) + ")\\b";
+    private static String ALGEBRATYPE_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLalgebraTypes) + ")\\b";
+    private static String COMMENT_PATTERN = "(//[^\n]*)|(/\\*.*\\*/)";
 
+    private static Pattern PATTERN = Pattern.compile("(?<SCALAR>" + SCALAR_PATTERN + ")"
+            + "|(?<ALGEBRATYPE>" + ALGEBRATYPE_PATTERN + ")"
+            + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
 
-    private static String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS) + ")//b";
-
-
-
-    private static Pattern PATTERN = Pattern.compile("(?<KEYWORD>" + KEYWORD_PATTERN + ")");
+    , Pattern.DOTALL);
 
 
 
@@ -34,22 +36,24 @@ public class Highlighter {
 
     public static StyleSpans<Collection<String>> highlight(String text){
 
-        Pattern p = Pattern.compile("(?<KEYWORD>\\b" + String.join("|", KEYWORDS) + "\\b)");
 
-
-        Matcher matcher = p.matcher(text);
+        Matcher matcher = PATTERN.matcher(text);
         int lastKwEnd = 0;
         StyleSpansBuilder<Collection<String>> spansBuilder
                 = new StyleSpansBuilder<>();
 
         while(matcher.find()) {
-            String styleClass = matcher.group("KEYWORD") != null ? "keyword" : "";
+            String styleClass = matcher.group("SCALAR") != null ? "scalar" :
+                    matcher.group("ALGEBRATYPE") != null ? "algebratype" :
+                            matcher.group("COMMENT") != null ? "comment" :
+                    "";
 
 
             if(styleClass.isEmpty())throw new InputMismatchException("ERROR: Highlight macher found a match that is not part of any group");
 
             char charBefore = matcher.start() == 0 ? ' ' : text.charAt(matcher.start() - 1);
-            if(charBefore == ' ' || charBefore == '\n' || charBefore == '\t') {
+
+            if(true) {
                 spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
                 spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
                 lastKwEnd = matcher.end();

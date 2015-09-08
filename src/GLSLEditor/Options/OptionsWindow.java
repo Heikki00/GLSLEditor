@@ -4,9 +4,11 @@ package GLSLEditor.Options;
 import GLSLEditor.Editor;
 import GLSLEditor.Layouts.OptionsLayout.OptionsLayoutController;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -18,6 +20,10 @@ public class OptionsWindow {
     private static Editor editor;
     private static List<Label> tabs;
     private static Label selected;
+    private static OptionsLayoutController controller;
+
+    private static Parent generalOptionsRoot;
+
 
     public static void init(Editor editor){
         OptionsWindow.editor = editor;
@@ -38,7 +44,7 @@ public class OptionsWindow {
             e.printStackTrace();
         }
 
-        OptionsLayoutController c = loader.getController();
+        controller = loader.getController();
 
 
         optionsScene = new Scene(root, 500, 400);
@@ -47,10 +53,15 @@ public class OptionsWindow {
 
         optionsWindow.setScene(optionsScene);
 
+        loadOptionLayouts();
 
-        tabs.add(c.GeneralOptionsTab);
-        tabs.add(c.EditorOptionsTab);
-        tabs.add(c.HotkeyOptionsTab);
+
+
+
+
+        tabs.add(controller.GeneralOptionsTab);
+        tabs.add(controller.EditorOptionsTab);
+        tabs.add(controller.HotkeyOptionsTab);
 
 
         for(Label l : tabs){
@@ -61,7 +72,7 @@ public class OptionsWindow {
             l.setId("OptionsTab_idle");
         }
 
-        select(c.GeneralOptionsTab);
+        select(controller.GeneralOptionsTab);
 
         optionsWindow.show();
 
@@ -74,9 +85,42 @@ public class OptionsWindow {
         if(selected != null) selected.setId("OptionsTab_idle");
         selected = l;
         selected.setId("OptionsTab_selected");
-        System.out.println(l.getText());
+
+
+        if(selected.equals(controller.GeneralOptionsTab)){
+                setOptionsLayout(generalOptionsRoot);
+        }
+
+
+
+
+
     }
 
+
+    private static void setOptionsLayout(Node root){
+        controller.OptionsPane.getChildren().clear();
+        controller.OptionsPane.getChildren().add(root);
+    }
+
+    private static void loadOptionLayouts(){
+
+
+        FXMLLoader loader = new FXMLLoader(editor.getClass().getResource("Layouts/OptionsLayout/GeneralOptionsLayout.fxml"));
+        generalOptionsRoot = null;
+        try {
+            generalOptionsRoot = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+
+
+
+    }
 
 
 

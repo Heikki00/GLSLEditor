@@ -1,6 +1,7 @@
 package GLSLEditor;
 
 
+import GLSLEditor.AutoComplete.AutoComplete;
 import GLSLEditor.FileUI.FileBar;
 import GLSLEditor.FileUI.FileTab;
 import GLSLEditor.Highlighting.Highlighter;
@@ -9,12 +10,14 @@ import GLSLEditor.Hotkey.Hotkeys;
 import GLSLEditor.Layouts.MainLayout.MainLayoutController;
 import GLSLEditor.Options.OptionsWindow;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.fxmisc.richtext.TwoDimensional;
 
 
 import java.io.File;
@@ -48,6 +51,26 @@ public class Editor extends Application{
 
         codeArea = new CodeArea(c.mainCodeArea, this);
         fileBar = new FileBar(c.activeFileBar, this);
+        c.mainCodeArea.requestFocus();
+
+
+
+        Hotkeys.setHotkey("Test", new Hotkey(this, new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN), () -> {
+            System.out.println("Foo");
+
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    codeArea.getArea().positionCaret(0);
+                }
+            });
+
+
+        }));
+
+
+
+
 
 
         c.newMenuItem.setOnAction(e -> menuNew());
@@ -74,7 +97,7 @@ public class Editor extends Application{
 
         Highlighter.init(this);
         OptionsWindow.init(this);
-
+        AutoComplete.init(this);
 
 
 
@@ -206,6 +229,11 @@ public class Editor extends Application{
 
     public CodeArea getCodeArea(){
         return codeArea;
+    }
+
+
+    public Stage getWindow(){
+        return window;
     }
 
 

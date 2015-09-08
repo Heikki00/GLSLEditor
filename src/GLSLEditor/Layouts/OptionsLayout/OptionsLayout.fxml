@@ -4,7 +4,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GLSLEditor.Layouts.OptionsLayout.OptionsLayoutController">
+<GridPane fx:id="MainGridPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GLSLEditor.Layouts.OptionsLayout.OptionsLayoutController">
   <columnConstraints>
     <ColumnConstraints />
     <ColumnConstraints />
@@ -26,5 +26,6 @@
             </VBox>
          </content>
       </ScrollPane>
+      <Pane fx:id="OptionsPane" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
    </children>
 </GridPane>

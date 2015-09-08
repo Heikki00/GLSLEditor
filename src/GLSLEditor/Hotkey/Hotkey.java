@@ -8,14 +8,14 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 
 import javafx.scene.input.KeyEvent;
-
+import org.fxmisc.wellbehaved.event.EventHandlerHelper;
+import org.fxmisc.wellbehaved.event.EventPattern;
+import org.fxmisc.wellbehaved.event.EventPattern.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.fxmisc.wellbehaved.event.EventHandlerHelper;
-import static org.fxmisc.wellbehaved.event.EventPattern.*;
-import static org.fxmisc.wellbehaved.event.EventPattern.keyPressed;
+
 
 public class Hotkey {
 
@@ -36,7 +36,7 @@ public class Hotkey {
 
 
         EventHandler<? super KeyEvent> activated = EventHandlerHelper
-                        .on(keyPressed(keyCombination)).act(e -> {
+                .on(EventPattern.keyPressed(keyCombination)).act(e -> {
                     for (HotkeyCallback call : callbacks) call.onHotkey();
                 }).create();
 
@@ -53,9 +53,9 @@ public class Hotkey {
         this.editor = editor;
 
         EventHandler<? super KeyEvent> activated = EventHandlerHelper
-                .on(keyPressed(keyCombination)).act(e -> {
+                .on(EventPattern.keyPressed(keyCombination)).act(e -> {
                     for (HotkeyCallback call : callbacks) call.onHotkey();
-                }).create();
+               }).create();
 
 
         EventHandlerHelper.install(editor.getCodeArea().getArea().onKeyPressedProperty(), activated);

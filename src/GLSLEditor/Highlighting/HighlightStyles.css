@@ -1,7 +1,16 @@
 
-.keyword{
+.scalar{
     -fx-fill: #2d56ff;
 
 
 }
 
+.algebratype{
+    -fx-fill: #beaa70;
+
+}
+
+.comment{
+    -fx-fill: #79be95;
+
+}

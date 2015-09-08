@@ -11,6 +11,8 @@ public class CodeDatabase {
 
     public static Set<GLSLType> variableTypes;
 
+    public static Set<String> variableTypeStrings;
+
     static{
         variables = new HashSet<>();
         GLSLscalars = new HashSet<>();
@@ -18,6 +20,8 @@ public class CodeDatabase {
         GLSLvectors = new HashSet<>();
         GLSLMatrices = new HashSet<>();
         variableTypes = new HashSet<>();
+        variableTypeStrings = new HashSet<>();
+
         Collections.addAll(GLSLscalars, "bool", "int", "uint", "float", "double");
 
         for(int i = 2; i <= 4; ++i){
@@ -158,12 +162,12 @@ public class CodeDatabase {
         //MATRICES
         {
             for(String s : GLSLMatrices){
-                GLSLType type = new GLSLType(s);
+                     GLSLType type = new GLSLType(s);
 
 
                     type.setArrayType(1, getType((s.charAt(0) == 'd' ? "d" : "") + "vec" + s.charAt(s.length() - 1)));
                     type.setArrayType(2, getType(s.charAt(0) == 'd' ? "double" : "float"));
-
+                    variableTypes.add(type);
 
             }
 
@@ -172,6 +176,13 @@ public class CodeDatabase {
 
 
 
+
+        }
+
+
+
+        for(GLSLType type : variableTypes){
+            variableTypeStrings.add(type.getName());
 
         }
 
