@@ -4,6 +4,7 @@ package GLSLEditor;
 import GLSLEditor.AutoComplete.AutoComplete;
 import GLSLEditor.FileUI.FileBar;
 import GLSLEditor.FileUI.FileTab;
+import GLSLEditor.FileUI.ShaderBar;
 import GLSLEditor.Highlighting.Highlighter;
 import GLSLEditor.Hotkey.Hotkey;
 import GLSLEditor.Hotkey.Hotkeys;
@@ -14,6 +15,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.input.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -23,6 +25,7 @@ import org.fxmisc.richtext.TwoDimensional;
 import java.io.File;
 import java.io.IOException;
 
+//Main class that manages everything. Is the JavaFX Application class, inits the subsystems, 
 public class Editor extends Application{
     private Stage window;
     private Scene scene;
@@ -30,6 +33,10 @@ public class Editor extends Application{
     private CodeArea codeArea;
     private FileBar fileBar;
     private final String initialDirectory = "C:/Users/Heikki/IdeaProjects/GLSLEditor/TestFiles";
+    private Project project;
+    private MainLayoutController c;
+    private ShaderBar shaderBar;
+
 
 
     @Override
@@ -40,7 +47,7 @@ public class Editor extends Application{
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("Layouts/MainLayout/MainLayout.fxml"));
         Parent root = loader.load();
-        MainLayoutController c = loader.getController();
+        c = loader.getController();
 
 
 
@@ -93,7 +100,20 @@ public class Editor extends Application{
 
         c.optionsMenuItem.setOnAction(e -> OptionsWindow.show());
 
+        c.newProjectMenuItem.setOnAction(e -> menuNewProject());
+        Hotkeys.setHotkey("MenuNewProject", new Hotkey(this, new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), () -> menuNewProject()));
 
+        c.openProjectMenuItem.setOnAction(e -> menuOpenProject());
+        Hotkeys.setHotkey("MenuOpenProject", new Hotkey(this, new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), () -> menuOpenProject()));
+
+        c.closeProjectMenuItem.setOnAction(e -> menuCloseProject());
+
+        c.compileMenuItem.setOnAction(e -> menuCompile());
+        Hotkeys.setHotkey("MenuCompile", new Hotkey(this, new KeyCodeCombination(KeyCode.F5), () -> menuCompile()));
+
+
+
+        shaderBar = new ShaderBar(this, c.shaderBar);
 
         Highlighter.init(this);
         OptionsWindow.init(this);
@@ -103,7 +123,7 @@ public class Editor extends Application{
 
         window.show();
 
-
+        c.shaderBar.getChildren().add(new Label());
 
 
     }
@@ -207,7 +227,55 @@ public class Editor extends Application{
     }
 
 
+    public void menuNewProject(){
 
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Create project file");
+        fileChooser.setInitialDirectory(new File(initialDirectory));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("GLSL project", "*.glsl"));
+
+        File file =  fileChooser.showSaveDialog(window);
+
+        if(file == null) return;
+        if(file.exists()) file.delete();
+        try {
+            file.createNewFile();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+
+        project = new Project(this, file.getAbsolutePath().replace("\\", "/"));
+        shaderBar.setProject(project);
+    }
+
+   public void menuOpenProject(){
+       FileChooser fileChooser = new FileChooser();
+       fileChooser.setTitle("Select project to open");
+       fileChooser.setInitialDirectory(new File(initialDirectory));
+       fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("GLSL project", "*.glsl"));
+
+       File file =  fileChooser.showOpenDialog(window);
+       if(file == null) return;
+       project = new Project(this, file.getAbsolutePath().replace("\\", "/"));
+       shaderBar.setProject(project);
+
+
+   }
+
+
+    public void menuCloseProject(){
+        project = null;
+        shaderBar.setProject(null);
+
+
+
+    }
+
+
+    public void menuCompile(){
+        project.compile();
+
+    }
 
     public void addStyle(String file){
         scene.getStylesheets().add(getClass().getResource(file).toExternalForm());
@@ -230,6 +298,8 @@ public class Editor extends Application{
     public CodeArea getCodeArea(){
         return codeArea;
     }
+
+    public Project getProject(){return project;}
 
 
     public Stage getWindow(){

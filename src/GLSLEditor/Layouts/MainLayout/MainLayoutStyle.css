@@ -24,3 +24,27 @@
 #FileTabText_unsaved{
     -fx-font-weight: bold;
 }
+
+#ProjectTab_nono{
+    -fx-opacity: 30%;
+
+}
+
+
+
+#ProjectTab_no{
+    -fx-opacity: 50%;
+
+}
+
+
+#ProjectTab_hover{
+    -fx-background-color: #b9b9b9;
+
+}
+
+
+#ProjectTab_yes{
+    -fx-font-weight: bold;
+    -fx-opacity: 100%;
+}

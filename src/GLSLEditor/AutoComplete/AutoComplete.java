@@ -4,6 +4,7 @@ package GLSLEditor.AutoComplete;
 import GLSLEditor.CodeDatabase.CodeDatabase;
 import GLSLEditor.CodeDatabase.GLSLType;
 import GLSLEditor.Editor;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -23,7 +24,12 @@ public class AutoComplete {
 
         AutoComplete.cursorPos = cPos;
         completed = newVal;
-        if (cursorPos == 0) return;
+        if (cursorPos == 0){
+            contextMenu.getItems().clear();
+            contextMenu.hide();
+            codeArea.requestFocus();
+            return;
+        };
 
         StringBuilder build = new StringBuilder(newVal);
 
@@ -33,14 +39,17 @@ public class AutoComplete {
 
         }
 
+        if (newVal.charAt(cursorPos - 1) == '{') {
+            build.insert(cursorPos, '}');
+
+        }
 
 
-
-        if (newVal.charAt(cPos - 1) != ' ') {
+        if (newVal.charAt(cPos - 1) != ' ' && newVal.charAt(cPos - 1) != '\n') {
 
 
                 int spacePos = cPos - 1;
-                while(newVal.charAt(spacePos) != ' '){
+                while(newVal.charAt(spacePos) != ' '&& newVal.charAt(spacePos) != '\n'){
                     if(spacePos == 0){
                         break;
                     }
@@ -60,10 +69,9 @@ public class AutoComplete {
 
 
 
-            if(CodeDatabase.getType(typed) == null){
-
                 for(String name : CodeDatabase.variableTypeStrings){
-                    if(name.startsWith(typed)){
+                    if(!typed.isEmpty() && name.contains(typed)){
+                        if(typed.contains(name)) continue;
                         MenuItem m = new MenuItem(name);
                         Integer start = spacePos == 0 ? 0 : spacePos + 1;
                         Integer end = cPos;
@@ -74,19 +82,29 @@ public class AutoComplete {
                 }
 
 
-                if (!codeArea.getPopupWindow().isShowing()) codeArea.getPopupWindow().show(editor.getWindow());
+                if (!codeArea.getPopupWindow().isShowing() && !contextMenu.getItems().isEmpty()){
+                    codeArea.getPopupWindow().show(editor.getWindow());
+
+                }
+
+                if(contextMenu.getItems().isEmpty() || CodeDatabase.getType(typed) != null){
+                    contextMenu.hide();
+                    contextMenu.getItems().clear();
+                    codeArea.requestFocus();
+
+
+                }
 
 
 
-            }else{
-                contextMenu.hide();
-                System.out.println("FOUND");
-            }
+
 
 
 
         }else{
-            contextMenu.hide();
+            contextMenu.getItems().clear();
+           contextMenu.hide();
+            codeArea.requestFocus();
 
         }
 
@@ -112,6 +130,8 @@ public class AutoComplete {
         codeArea.setPopupWindow(contextMenu);
 
         codeArea.setPopupAlignment(PopupAlignment.CARET_BOTTOM);
+
+
 
     }
 

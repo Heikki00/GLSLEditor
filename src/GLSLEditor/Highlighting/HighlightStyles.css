@@ -14,3 +14,9 @@
     -fx-fill: #79be95;
 
 }
+
+.error{
+    -fx-underline: true;
+
+
+}

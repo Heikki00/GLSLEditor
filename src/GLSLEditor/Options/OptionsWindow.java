@@ -90,7 +90,11 @@ public class OptionsWindow {
         if(selected.equals(controller.GeneralOptionsTab)){
                 setOptionsLayout(generalOptionsRoot);
         }
+        else if(selected.equals(controller.HotkeyOptionsTab)){
 
+
+
+        }
 
 
 

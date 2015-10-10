@@ -8,7 +8,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 
-
 <?import org.fxmisc.richtext.CodeArea?>
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GLSLEditor.Layouts.MainLayout.MainLayoutController">
@@ -31,10 +30,20 @@
                 </items>
             </Menu>
 
+            <Menu mnemonicParsing="false" text="Project">
+                <items>
+                    <MenuItem fx:id="newProjectMenuItem" mnemonicParsing="false" text="New Project" />
+                    <MenuItem fx:id="openProjectMenuItem" mnemonicParsing="false" text="Open project" />
+                    <MenuItem fx:id="closeProjectMenuItem" mnemonicParsing="false" text="Close Project" />
+                    <MenuItem fx:id="compileMenuItem" mnemonicParsing="false" text="Compile" />
+
+                </items>
+            </Menu>
+
         </menus>
       </MenuBar>
       <HBox fx:id="activeFileBar" alignment="CENTER_LEFT" prefHeight="25.0" prefWidth="600.0" />
       <CodeArea fx:id="mainCodeArea" prefHeight="350.0" prefWidth="600.0" VBox.vgrow="ALWAYS" />
-      <HBox prefHeight="22.0" prefWidth="600.0" />
+      <HBox fx:id="shaderBar" prefHeight="22.0" prefWidth="600.0" />
    </children>
 </VBox>

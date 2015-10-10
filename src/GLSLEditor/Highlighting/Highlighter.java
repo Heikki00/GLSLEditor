@@ -2,12 +2,12 @@ package GLSLEditor.Highlighting;
 
 import GLSLEditor.CodeDatabase.CodeDatabase;
 import GLSLEditor.Editor;
+import GLSLEditor.Util.Range;
 import org.fxmisc.richtext.StyleSpans;
 import org.fxmisc.richtext.StyleSpansBuilder;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.InputMismatchException;
+import java.time.temporal.ValueRange;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,9 +15,10 @@ import java.util.regex.Pattern;
  * Created by Heikki on 4.8.2015.
  */
 public class Highlighter {
-
+    private static Editor editor;
     public static void init(Editor editor){
         editor.addStyle("Highlighting/HighLightStyles.css");
+        Highlighter.editor = editor;
     }
 
     private static String SCALAR_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLscalars) + ")\\b";
@@ -31,13 +32,14 @@ public class Highlighter {
     , Pattern.DOTALL);
 
 
+    private static List<Range> errors = new ArrayList<>();
 
 
-
-    public static StyleSpans<Collection<String>> highlight(String text){
+    public static void highlight(String text){
 
 
         Matcher matcher = PATTERN.matcher(text);
+
         int lastKwEnd = 0;
         StyleSpansBuilder<Collection<String>> spansBuilder
                 = new StyleSpansBuilder<>();
@@ -53,16 +55,38 @@ public class Highlighter {
 
             char charBefore = matcher.start() == 0 ? ' ' : text.charAt(matcher.start() - 1);
 
-            if(true) {
+
                 spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
                 spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
                 lastKwEnd = matcher.end();
-            }
+
         }
         spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
-        return spansBuilder.create();
+        editor.getCodeArea().getArea().setStyleSpans(0, spansBuilder.create());
 
 
+        for(Range r : errors){
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+
+//Adds range that will have error style. Removes itself automatically
+    public static void addError(int start, int end){
+        errors.add(new Range(start, end));
 
 
     }

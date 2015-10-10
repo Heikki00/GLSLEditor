@@ -1,4 +1,5 @@
 package GLSLEditor.CodeDatabase;
+import GLSLEditor.Highlighting.Highlighter;
 import javafx.util.Pair;
 
 import java.util.*;
@@ -196,6 +197,13 @@ public class CodeDatabase {
 
 
     public static void update(String code){
+        if(code.length() > new String("#version 430").length() && !code.startsWith("#version")){
+            Highlighter.addError(0, new String("#version 430").length());
+
+
+        }
+
+
 
 
 

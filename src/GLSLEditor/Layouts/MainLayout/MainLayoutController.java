@@ -7,6 +7,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.web.HTMLEditor;
 
 
+import java.awt.*;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -14,9 +15,10 @@ import java.util.ResourceBundle;
 public class MainLayoutController implements Initializable{
 
     @FXML
+    //public TextArea mainCodeArea;
     public org.fxmisc.richtext.CodeArea mainCodeArea;
-    public HBox activeFileBar;
-    public MenuItem openMenuItem, saveMenuItem, saveAsMenuItem, closeMenuItem, newMenuItem, optionsMenuItem;
+    public HBox activeFileBar, shaderBar;
+    public MenuItem openMenuItem, saveMenuItem, saveAsMenuItem, closeMenuItem, newMenuItem, optionsMenuItem, compileMenuItem, openProjectMenuItem, closeProjectMenuItem, newProjectMenuItem;
 
 
     @Override

@@ -53,7 +53,7 @@ public class CodeArea {
 
 
 
-            area.setStyleSpans(0, Highlighter.highlight(newValue));
+          Highlighter.highlight(newValue);
 
 
         });

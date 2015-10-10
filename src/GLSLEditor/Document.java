@@ -23,6 +23,8 @@ public class Document {
     private StringProperty filename;
     private BooleanProperty saved;
 
+
+
     public Document(){
         filename = new SimpleStringProperty("New Document");
         saved = new SimpleBooleanProperty();
@@ -40,10 +42,10 @@ public class Document {
 
 
     public void load(String filename){
-
         try {
             text = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
             text = text.replace("\r", "");
+
         } catch (IOException e) {
             e.printStackTrace();
         }

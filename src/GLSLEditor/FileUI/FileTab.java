@@ -25,22 +25,25 @@ public class FileTab {
     private Label label;
     private Button closeButton;
     private boolean selected;
+    private FileTab own;
 
     public FileTab(Document doc, final Editor editor){
         label = new Label(doc.getName());
         hbox = new HBox();
         closeButton = new Button();
+        own = this;
 
-        hbox.setPrefWidth(100);
+        hbox.setMinWidth(100);
+        hbox.setMaxWidth(100);
         hbox.setMinHeight(editor.getFileBar().getBar().getHeight());
         hbox.getChildren().add(label);
         hbox.getChildren().add(closeButton);
-
+        label.setMinWidth(90);
         closeButton.setBackground(new Background(new BackgroundFill(Paint.valueOf("red"), null, null)));
         closeButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                editor.menuClose();
+                editor.getFileBar().removeTab(own);
             }
         });
 
