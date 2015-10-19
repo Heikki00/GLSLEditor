@@ -6,7 +6,7 @@ import java.util.*;
 
 public class CodeDatabase {
 
-    public static Set<String> GLSLscalars, GLSLalgebraTypes, GLSLvectors, GLSLMatrices;
+    public static Set<String> GLSLscalars, GLSLalgebraTypes, GLSLvectors, GLSLMatrices, GLSLKeywords;
 
     public static Set<GLSLVariable> variables;
 
@@ -22,8 +22,13 @@ public class CodeDatabase {
         GLSLMatrices = new HashSet<>();
         variableTypes = new HashSet<>();
         variableTypeStrings = new HashSet<>();
+        GLSLKeywords = new HashSet<>();
 
-        Collections.addAll(GLSLscalars, "bool", "int", "uint", "float", "double");
+        Collections.addAll(GLSLKeywords, "attribute", "const", "uniform", "varying", "buffer", "shared", "coherent", "volatile", "restrict", "readonly", "writeonly",
+                "centroid", "flat", "smooth", "nonperspective", "patch", "sample", "break", "continue", "do", "for", "while", "switch", "case", "default", "if",
+                "else", "subroutine", "in", "out", "inout", "invariant", "precise", "discard", "return", "struct");
+
+        Collections.addAll(GLSLscalars, "bool", "int", "uint", "float", "double", "void", "atomic_uint");
 
         for(int i = 2; i <= 4; ++i){
             Collections.addAll(GLSLvectors, "bvec" + i, "ivec" + i, "uvec" + i, "vec" + i, "dvec" + i);

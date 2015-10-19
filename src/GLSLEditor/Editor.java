@@ -32,7 +32,7 @@ public class Editor extends Application{
     private String windowTitle;
     private CodeArea codeArea;
     private FileBar fileBar;
-    private final String initialDirectory = "C:/Users/Heikki/IdeaProjects/GLSLEditor/TestFiles";
+    private final String initialDirectory = "C:/";
     private Project project;
     private MainLayoutController c;
     private ShaderBar shaderBar;

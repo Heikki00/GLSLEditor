@@ -11,7 +11,6 @@ import javafx.scene.input.KeyEvent;
 import org.fxmisc.wellbehaved.event.EventHandlerHelper;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.EventPattern.*;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -7,10 +7,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/richtextfx-fat-0.6.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/richtextfx-fat-0.6.10.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

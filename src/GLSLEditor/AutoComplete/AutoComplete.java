@@ -33,17 +33,24 @@ public class AutoComplete {
 
         StringBuilder build = new StringBuilder(newVal);
 
+        if(oldVal.length() + 1 == newVal.length()) {
 
-        if (newVal.charAt(cursorPos - 1) == '(') {
-            build.insert(cursorPos, ')');
+            if (newVal.charAt(cursorPos - 1) == '(') {
+              build.insert(cursorPos, ')');
+
+            }
+
+            if (newVal.charAt(cursorPos - 1) == '{') {
+               build.insert(cursorPos, '}');
+
+            }
+
+            if(newVal.charAt(cursorPos - 1) == ')' && newVal.charAt(cursorPos - 2) == '('){
+                build.deleteCharAt(cursorPos - 1);
+
+            }
 
         }
-
-        if (newVal.charAt(cursorPos - 1) == '{') {
-            build.insert(cursorPos, '}');
-
-        }
-
 
         if (newVal.charAt(cPos - 1) != ' ' && newVal.charAt(cPos - 1) != '\n') {
 

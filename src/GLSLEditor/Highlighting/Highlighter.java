@@ -24,10 +24,12 @@ public class Highlighter {
     private static String SCALAR_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLscalars) + ")\\b";
     private static String ALGEBRATYPE_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLalgebraTypes) + ")\\b";
     private static String COMMENT_PATTERN = "(//[^\n]*)|(/\\*.*\\*/)";
+    private static String KEYWORD_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLKeywords) + ")\\b";
 
     private static Pattern PATTERN = Pattern.compile("(?<SCALAR>" + SCALAR_PATTERN + ")"
             + "|(?<ALGEBRATYPE>" + ALGEBRATYPE_PATTERN + ")"
             + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
+            + "|?<KEYWORD>" + KEYWORD_PATTERN + ")"
 
     , Pattern.DOTALL);
 
@@ -48,6 +50,7 @@ public class Highlighter {
             String styleClass = matcher.group("SCALAR") != null ? "scalar" :
                     matcher.group("ALGEBRATYPE") != null ? "algebratype" :
                             matcher.group("COMMENT") != null ? "comment" :
+                                    matcher.group("KEYWORD") != null ? "keyword" :
                     "";
 
 
@@ -62,7 +65,12 @@ public class Highlighter {
 
         }
         spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
-        editor.getCodeArea().getArea().setStyleSpans(0, spansBuilder.create());
+
+
+        org.fxmisc.richtext.StyleSpans<Collection<String>> styles = spansBuilder.create();
+
+
+        editor.getCodeArea().setStyle(styles);
 
 
         for(Range r : errors){
