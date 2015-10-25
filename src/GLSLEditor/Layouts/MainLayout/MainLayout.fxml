@@ -36,7 +36,7 @@
                     <MenuItem fx:id="openProjectMenuItem" mnemonicParsing="false" text="Open project" />
                     <MenuItem fx:id="closeProjectMenuItem" mnemonicParsing="false" text="Close Project" />
                     <MenuItem fx:id="compileMenuItem" mnemonicParsing="false" text="Compile" />
-
+                    <MenuItem fx:id="setShadersFileMenuItem" mnemonicParsing="false" text="Select .shaders File" />
                 </items>
             </Menu>
 

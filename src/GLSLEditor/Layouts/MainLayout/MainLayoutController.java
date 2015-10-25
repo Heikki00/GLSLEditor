@@ -18,7 +18,7 @@ public class MainLayoutController implements Initializable{
     //public TextArea mainCodeArea;
     public org.fxmisc.richtext.CodeArea mainCodeArea;
     public HBox activeFileBar, shaderBar;
-    public MenuItem openMenuItem, saveMenuItem, saveAsMenuItem, closeMenuItem, newMenuItem, optionsMenuItem, compileMenuItem, openProjectMenuItem, closeProjectMenuItem, newProjectMenuItem;
+    public MenuItem openMenuItem, saveMenuItem, saveAsMenuItem, closeMenuItem, newMenuItem, optionsMenuItem, compileMenuItem, openProjectMenuItem, closeProjectMenuItem, newProjectMenuItem, setShadersFileMenuItem;
 
 
     @Override

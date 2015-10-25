@@ -6,6 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Heikki on 10.10.2015.
@@ -15,7 +17,7 @@ public class Project {
     private Document own;
     private Editor editor;
     private String relativePathStart;
-
+    private String shadersFilePath;
 
 
     public Project(Editor editor, String filename){
@@ -38,6 +40,10 @@ public class Project {
 
     }
 
+    public void setShadersFile(String file){
+        shadersFilePath = file;
+
+    }
 
     public void setDocument(String stage, Document doc){
         if(!doc.isFile()) throw new IllegalArgumentException("ERROR: Tried to add non-file document to project");
@@ -72,21 +78,65 @@ public class Project {
         own.setText("");
         for(String s : documents.keySet()){
 
-            File file = new File(documents.get(s).getFilename().substring(0, documents.get(s).getFilename().lastIndexOf('.')) + "_COMPILED." + s);
+           if(shadersFilePath.isEmpty()){
+               throw new IllegalStateException("ERROR: Tried to compile shader " + own.getFilename() + " without.shaders file!");
 
-            try {
-                file.createNewFile();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+           }
 
-            Document doc = new Document(file.getAbsolutePath().replace("\\", "/"));
+            Document shaders = new Document(shadersFilePath);
 
             String text = documents.get(s).getText();
 
             String parsedText = parseIncludes(text, new ArrayList<>());
 
-            doc.setText(parsedText);
+            StringBuilder shadersText = new StringBuilder(shaders.getText());
+
+            if(shadersText.length() == 0){
+                shadersText.append("\n");
+                shadersText.append((char)255);
+
+            }
+
+            int markIndex =  shadersText.indexOf(Character.toString((char) 255));
+
+
+            String relativeFilename = documents.get(s).getFilename().substring(relativePathStart.length());
+
+            String shaderTable = shadersText.substring(0, markIndex);
+
+            if(shaderTable.contains(relativeFilename)){
+                    Pattern p  = Pattern.compile("([* \n]+) (\\d+) (\\d+)\n");
+                    Matcher m = p.matcher(shaderTable);
+                    StringBuffer b = new StringBuffer();
+
+                    int change = 0;
+
+                    while(m.find()){
+                        String fileName = m.group(1);
+                        int start = Integer.parseInt(m.group(2));
+                        int end = Integer.parseInt(m.group(3));
+
+                        if(fileName.equals(relativeFilename)){
+                            shadersText.replace(start, end, parsedText);
+                            change = parsedText.length() - (end - start);
+                            m.appendReplacement(b, fileName + " " + start + " " + (end + change) + "\n");
+                            continue;
+                        }
+
+                        m.appendReplacement(b, fileName + " " + (start + change) + " " + (end + change) + "\n");
+
+
+                    }
+
+                shadersText.replace(0, markIndex, b.toString());
+
+            }else{
+
+                shadersText.insert(markIndex, relativeFilename + " " + shadersText.)
+
+
+            }
+
 
 
 

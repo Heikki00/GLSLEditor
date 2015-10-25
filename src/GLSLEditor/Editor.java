@@ -246,6 +246,12 @@ public class Editor extends Application{
 
         project = new Project(this, file.getAbsolutePath().replace("\\", "/"));
         shaderBar.setProject(project);
+
+        menuSetShaderFile();
+
+
+
+
     }
 
    public void menuOpenProject(){
@@ -276,6 +282,29 @@ public class Editor extends Application{
         project.compile();
 
     }
+
+
+    public void menuSetShaderFile(){
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select .shaders File");
+        fileChooser.setInitialDirectory(new File(getProject().getRelativeFolder()));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Shaders file", "*.shaders"));
+
+        File file =  fileChooser.showOpenDialog(window);
+        if(file == null) return;
+
+        project.setShadersFile(file);
+
+
+
+
+    }
+
+
+
+
+
 
     public void addStyle(String file){
         scene.getStylesheets().add(getClass().getResource(file).toExternalForm());

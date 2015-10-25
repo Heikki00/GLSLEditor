@@ -29,7 +29,7 @@ public class Highlighter {
     private static Pattern PATTERN = Pattern.compile("(?<SCALAR>" + SCALAR_PATTERN + ")"
             + "|(?<ALGEBRATYPE>" + ALGEBRATYPE_PATTERN + ")"
             + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
-            + "|?<KEYWORD>" + KEYWORD_PATTERN + ")"
+            + "|(?<KEYWORD>" + KEYWORD_PATTERN + ")"
 
     , Pattern.DOTALL);
 
