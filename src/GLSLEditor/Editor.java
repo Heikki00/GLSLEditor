@@ -294,7 +294,7 @@ public class Editor extends Application{
         File file =  fileChooser.showOpenDialog(window);
         if(file == null) return;
 
-        project.setShadersFile(file);
+        project.setShadersFile(file.getAbsolutePath().replace("\\", "/"));
 
 
 

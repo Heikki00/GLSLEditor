@@ -28,11 +28,19 @@ public class Project {
         relativePathStart = filename.substring(0, filename.lastIndexOf("/") + 1);
         Scanner scan = new Scanner(own.getText());
 
+        boolean first = true;
         while(scan.hasNext()){
+
+            if(first){
+                String s = scan.nextLine();
+                shadersFilePath = s;
+                first = false;
+                continue;
+            }
+
             String s = scan.nextLine();
+            if(s.isEmpty()) continue;
             String s1 = relativePathStart + s.substring(2);
-            final String COMPILE_KEY = "_COMPILED";
-            s1 = s1.substring(0, s1.indexOf(COMPILE_KEY)) + s1.substring(s1.indexOf(COMPILE_KEY) + COMPILE_KEY.length());
 
             documents.put(s.substring(0, 2), new Document(s1));
         }
@@ -41,7 +49,7 @@ public class Project {
     }
 
     public void setShadersFile(String file){
-        shadersFilePath = file;
+        shadersFilePath = file.substring(relativePathStart.length());
 
     }
 
@@ -76,14 +84,19 @@ public class Project {
 
     public void compile(){
         own.setText("");
+
+        if(shadersFilePath == null ||shadersFilePath.isEmpty()){
+            throw new IllegalStateException("ERROR: Tried to compile shader " + own.getFilename() + " without.shaders file!");
+
+        }
+
+        own.setText(shadersFilePath + "\n");
+
         for(String s : documents.keySet()){
 
-           if(shadersFilePath.isEmpty()){
-               throw new IllegalStateException("ERROR: Tried to compile shader " + own.getFilename() + " without.shaders file!");
 
-           }
-
-            Document shaders = new Document(shadersFilePath);
+           // System.out.println(documents.get(s).getFilename());
+            Document shaders = new Document(relativePathStart + shadersFilePath);
 
             String text = documents.get(s).getText();
 
@@ -91,32 +104,38 @@ public class Project {
 
             StringBuilder shadersText = new StringBuilder(shaders.getText());
 
+
             if(shadersText.length() == 0){
                 shadersText.append("\n");
-                shadersText.append((char)255);
-
+                shadersText.append((char)36);
+                shadersText.append("\n");
             }
 
-            int markIndex =  shadersText.indexOf(Character.toString((char) 255));
+            int markIndex =  shadersText.indexOf(Character.toString((char) 36));
 
+
+         //   if(true) return;
 
             String relativeFilename = documents.get(s).getFilename().substring(relativePathStart.length());
 
             String shaderTable = shadersText.substring(0, markIndex);
 
             if(shaderTable.contains(relativeFilename)){
-                    Pattern p  = Pattern.compile("([* \n]+) (\\d+) (\\d+)\n");
+                    Pattern p  = Pattern.compile("([^ \n]+) (\\d+) (\\d+)\n");
                     Matcher m = p.matcher(shaderTable);
                     StringBuffer b = new StringBuffer();
 
                     int change = 0;
 
+                System.out.println("Trying to find: " + relativeFilename);
                     while(m.find()){
                         String fileName = m.group(1);
                         int start = Integer.parseInt(m.group(2));
                         int end = Integer.parseInt(m.group(3));
-
+                        System.out.println("Maybe " + fileName);
                         if(fileName.equals(relativeFilename)){
+                            System.out.println("Found: |" + fileName +"|");
+
                             shadersText.replace(start, end, parsedText);
                             change = parsedText.length() - (end - start);
                             m.appendReplacement(b, fileName + " " + start + " " + (end + change) + "\n");
@@ -128,23 +147,28 @@ public class Project {
 
                     }
 
+                if(b.indexOf(Character.toString((char)36)) == -1){
+                    b.append((char)36);
+                }
                 shadersText.replace(0, markIndex, b.toString());
 
             }else{
 
-                shadersText.insert(markIndex, relativeFilename + " " + shadersText.)
+                shadersText.insert(markIndex, relativeFilename + " " + (shadersText.length() - markIndex) + " " + (shadersText.length() - markIndex + parsedText.length()) + "\n");
 
+                shadersText.append(parsedText);
 
             }
 
 
+            shaders.setText(shadersText.toString());
+            shaders.save();
 
-
-            own.setText(own.getText() + s + doc.getAsFile().getAbsolutePath().replace("\\", "/").substring(relativePathStart.length()) + "\n");
+            own.setText(own.getText() + s + documents.get(s).getFilename().substring(relativePathStart.length()) + "\n");
 
 
             own.save();
-            doc.save();
+
             documents.get(s).save();
         }
 

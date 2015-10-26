@@ -49,6 +49,11 @@ public class AutoComplete {
                 build.deleteCharAt(cursorPos - 1);
 
             }
+            if(newVal.charAt(cursorPos - 1) == '}' && newVal.charAt(cursorPos - 2) == '{'){
+                build.deleteCharAt(cursorPos - 1);
+
+            }
+
 
         }
 
