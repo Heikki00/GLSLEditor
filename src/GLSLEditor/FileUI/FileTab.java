@@ -54,7 +54,7 @@ public class FileTab {
         label.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                editor.select(FileTab.this);
+                editor.selectTab(FileTab.this);
             }
         });
 

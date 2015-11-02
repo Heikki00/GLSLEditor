@@ -20,6 +20,7 @@
                   <MenuItem fx:id="openMenuItem" mnemonicParsing="false" text="Open" />
                   <MenuItem fx:id="saveMenuItem" mnemonicParsing="false" text="Save" />
                 <MenuItem fx:id="saveAsMenuItem" mnemonicParsing="false" text="Save As" />
+                <MenuItem fx:id="reloadMenuItem" mnemonicParsing="false" text="Reload File" />
                 <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" text="Close" />
             </items>
           </Menu>

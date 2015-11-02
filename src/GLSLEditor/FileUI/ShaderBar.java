@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
 
 /**
  * Created by Heikki on 10.10.2015.
@@ -69,11 +68,11 @@ public class ShaderBar {
                 if (s.equals("name")) return;
                 if (editor.getProject().hasDocument(s)) {
                     if (editor.getFileBar().hasTab(editor.getProject().getDocument(s))) {
-                        editor.select(editor.getFileBar().getTab(editor.getProject().getDocument(s)));
+                        editor.selectTab(editor.getFileBar().getTab(editor.getProject().getDocument(s)));
 
                     } else {
                         editor.getFileBar().addTab(new FileTab(editor.getProject().getDocument(s), editor));
-                        editor.select(editor.getFileBar().getTab(editor.getProject().getDocument(s)));
+                        editor.selectTab(editor.getFileBar().getTab(editor.getProject().getDocument(s)));
 
 
                     }
@@ -120,7 +119,7 @@ public class ShaderBar {
 
                     FileTab tab = new FileTab(doc, editor);
                     editor.getFileBar().addTab(tab);
-                    editor.select(tab);
+                    editor.selectTab(tab);
 
                     editor.getProject().setDocument(s, doc);
 
@@ -151,7 +150,7 @@ public class ShaderBar {
 
                     FileTab tab = new FileTab(doc, editor);
                     editor.getFileBar().addTab(tab);
-                    editor.select(tab);
+                    editor.selectTab(tab);
 
                     editor.getProject().setDocument(s, doc);
 

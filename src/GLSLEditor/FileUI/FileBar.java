@@ -5,9 +5,7 @@ import GLSLEditor.Editor;
 import javafx.scene.layout.HBox;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Heikki on 2.7.2015.
@@ -93,8 +91,8 @@ public class FileBar {
 
         if(tab.equals(selectedTab)){
             if(tabs.size() > 1){
-                if(getTabIndex(tab) != 0)editor.select(getByIndex(getTabIndex(tab) - 1));
-                else editor.select(getByIndex(1));
+                if(getTabIndex(tab) != 0)editor.selectTab(getByIndex(getTabIndex(tab) - 1));
+                else editor.selectTab(getByIndex(1));
             }
             else {
                 editor.getCodeArea().disable();

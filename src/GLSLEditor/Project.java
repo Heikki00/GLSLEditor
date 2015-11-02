@@ -9,9 +9,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by Heikki on 10.10.2015.
- */
+//Class that represents an GLSL Shader project. Includes many shaders, that can be compiled to .shaders file that is shared between projects.
 public class Project {
     private Map<String, Document> documents;
     private Document own;
@@ -19,15 +17,19 @@ public class Project {
     private String relativePathStart;
     private String shadersFilePath;
 
-
+    //Constructs a new Project. Unlike document, project always needs a file.
     public Project(Editor editor, String filename){
         documents = new HashMap<>();
         this.editor = editor;
         own = new Document(filename);
 
         relativePathStart = filename.substring(0, filename.lastIndexOf("/") + 1);
+
+
         Scanner scan = new Scanner(own.getText());
 
+        //Read the .glsl file. First line contains .shaders file path relative to project file(.glsl)
+        //Rest of the lines contain an identifier of shader(2 chars long) and relative filename to that shader
         boolean first = true;
         while(scan.hasNext()){
 
@@ -48,11 +50,13 @@ public class Project {
 
     }
 
+    //Sets the .shaders file. Parameter file is a ABSOLUTE path to .shaders file, this function shortens it to relative path.
     public void setShadersFile(String file){
         shadersFilePath = file.substring(relativePathStart.length());
 
     }
 
+    //Sets a shader. Stage is an identifier(vs,gs,tc,ts,fs)
     public void setDocument(String stage, Document doc){
         if(!doc.isFile()) throw new IllegalArgumentException("ERROR: Tried to add non-file document to project");
         if(!doc.getAsFile().getAbsolutePath().replace("\\", "/").startsWith(relativePathStart)) throw new IllegalArgumentException("ERROR: called Project.setDocument with document that wasn't under project file's directory");
@@ -60,10 +64,12 @@ public class Project {
 
     }
 
+
     public Document getDocument(String stage){
         return documents.get(stage);
 
     }
+
 
     public void removeDocument(String stage){
         documents.put(stage, null);
@@ -73,15 +79,19 @@ public class Project {
         return documents.get(stage) != null;
     }
 
+    //Returns the NAME of .glsl document(note: not filename). Used for UI purposes.
     public String getName(){
         return own.getName();
 
     }
 
-    public String getAbsolutePath(){return own.getAsFile().getAbsolutePath().replace("\\", "/");}
+    //Returns the full filename of .glsl document
+    public String getFilename(){return own.getFilename();}
 
+    //Returns path to folder that contains the .glsl file
     public String getRelativeFolder(){return relativePathStart;}
 
+    //Compiles the shader. Parses all the includes of shaders and writes them to .shaders file
     public void compile(){
         own.setText("");
 
@@ -92,17 +102,23 @@ public class Project {
 
         own.setText(shadersFilePath + "\n");
 
+        //Get text from .shaders file
+        Document shaders = new Document(relativePathStart + shadersFilePath);
+        StringBuilder shadersText = new StringBuilder(shaders.getText());
+
+
+        //Loop through all the shaders
         for(String s : documents.keySet()){
 
 
-           // System.out.println(documents.get(s).getFilename());
-            Document shaders = new Document(relativePathStart + shadersFilePath);
-
-            String parsedText = parseIncludes(documents.get(s).getText(), new ArrayList<>());
-
-            StringBuilder shadersText = new StringBuilder(shaders.getText());
 
 
+            //Parse the shader
+            String parsedText = parseIncludes(documents.get(s).getText());
+
+
+
+            
             if(shadersText.length() == 0){
                 shadersText.append("\n");
                 shadersText.append('$');
@@ -172,13 +188,26 @@ public class Project {
 
     }
 
+    //Parses the includes of some shader file. Src is full source of the shader, retuns parsed version of that shader.
+    private String parseIncludes(String src){
+        return parseIncludesRecrusive(src, new ArrayList<>());
 
-    private String parseIncludes(String src, List<String> includedFiles){
+    }
+
+    //Actually does the include parsing, includedFiles is list of files that are already included, used because this function is recrusive. Should be new List when called from elsewhere
+    private String parseIncludesRecrusive(String src, List<String> includedFiles){
+
+
+
+
         final String INCLUDE_KEY = "#include";
 
+        //While there is include statements
         while(src.indexOf(INCLUDE_KEY) != -1){
 
             int keyIndex = src.indexOf(INCLUDE_KEY);
+
+            //Find indexes of quotes
             int firstQ = src.indexOf("\"", keyIndex);
             int lastQ = src.indexOf("\"", firstQ + 1);
 
@@ -187,6 +216,7 @@ public class Project {
 
             StringBuilder sb = new StringBuilder(src);
 
+            //If file has been already included, remove include statement and skip it
             if(includedFiles.contains(filename)){
 
                 sb.replace(keyIndex, lastQ + 1, "");
@@ -195,10 +225,12 @@ public class Project {
                 continue;
             }
 
+            //Create file. If filename does not contain .glh extension, add it
             File file = new File(relativePathStart + (filename.contains(".ghl") ? filename : filename + ".glh"));
 
             String includedText = "";
 
+            //Read the file
             try {
                 includedText = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
                 includedText = includedText.replace("\r", "");
@@ -206,12 +238,13 @@ public class Project {
                 e.printStackTrace();
             }
 
+            //Add file to includedFiles and parse it
             includedFiles.add(filename);
-            includedText = parseIncludes(includedText, includedFiles);
+            includedText = parseIncludesRecrusive(includedText, includedFiles);
 
 
 
-
+            //replace include statement with parsed file
             sb.replace(keyIndex, lastQ + 1, includedText);
 
             src = sb.toString();
@@ -221,9 +254,6 @@ public class Project {
 
         return src;
     }
-
-
-
 
 
 

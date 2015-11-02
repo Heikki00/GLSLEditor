@@ -11,134 +11,122 @@ import GLSLEditor.Hotkey.Hotkeys;
 import GLSLEditor.Layouts.MainLayout.MainLayoutController;
 import GLSLEditor.Options.OptionsWindow;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.input.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.fxmisc.richtext.TwoDimensional;
 
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 //Main class that manages everything. Is the JavaFX Application class, inits the subsystems, 
 public class Editor extends Application{
     private Stage window;
     private Scene scene;
-    private String windowTitle;
+    private String windowTitle = "GLSLEditor";
     private CodeArea codeArea;
     private FileBar fileBar;
-    private final String initialDirectory = "C:/";
+    private final String initialDirectory = System.getProperty("user.home");
     private Project project;
-    private MainLayoutController c;
+    private MainLayoutController controller;
     private ShaderBar shaderBar;
 
 
 
+    //Star method of the application. Creates window, loads the first scene, inits static content, sets up hotkeys etc.
     @Override
     public void start(Stage primaryStage) throws Exception {
         window = primaryStage;
         window.setTitle(windowTitle);
 
-
+        //Load main controller and layout
         FXMLLoader loader = new FXMLLoader(getClass().getResource("Layouts/MainLayout/MainLayout.fxml"));
         Parent root = loader.load();
-        c = loader.getController();
+        controller = loader.getController();
 
 
-
+        //Create scene
         scene = new Scene(root, 800, 600);
         window.setScene(scene);
 
-        scene.getStylesheets().add(getClass().getResource("Layouts/MainLayout/MainLayoutStyle.css").toExternalForm());
-
-        codeArea = new CodeArea(c.mainCodeArea, this);
-        fileBar = new FileBar(c.activeFileBar, this);
-        c.mainCodeArea.requestFocus();
-
-
-
-        Hotkeys.setHotkey("Test", new Hotkey(this, new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN), () -> {
-            System.out.println("Foo");
-
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    codeArea.getArea().positionCaret(0);
-                }
-            });
+        //Set stylesheet
+        addStyle("Layouts/MainLayout/MainLayoutStyle.css");
+        //Create the elements of main scene
+        codeArea = new CodeArea(controller.mainCodeArea, this);
+        fileBar = new FileBar(controller.activeFileBar, this);
+        shaderBar = new ShaderBar(this, controller.shaderBar);
+        controller.mainCodeArea.requestFocus();
 
 
-        }));
-
-
-
-
-
-
-        c.newMenuItem.setOnAction(e -> menuNew());
-        Hotkeys.setHotkey("MenuNew", new Hotkey(this, new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN), () -> menuNew()));
-
-
-        c.openMenuItem.setOnAction(e -> menuOpen());
-        Hotkeys.setHotkey("MenuOpen", new Hotkey(this, new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN), () -> menuOpen()));
-
-
-        c.saveMenuItem.setOnAction(e -> menuSave());
-        Hotkeys.setHotkey("MenuSave", new Hotkey(this, new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN), () -> menuSave()));
-
-
-        c.saveAsMenuItem.setOnAction(e -> menuSaveAs());
-        Hotkeys.setHotkey("MenuSaveAs", new Hotkey(this, new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), () -> menuSaveAs()));
-
-
-        c.closeMenuItem.setOnAction(e -> menuClose());
-
-        c.optionsMenuItem.setOnAction(e -> OptionsWindow.show());
-
-        c.newProjectMenuItem.setOnAction(e -> menuNewProject());
-        Hotkeys.setHotkey("MenuNewProject", new Hotkey(this, new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), () -> menuNewProject()));
-
-        c.openProjectMenuItem.setOnAction(e -> menuOpenProject());
-        Hotkeys.setHotkey("MenuOpenProject", new Hotkey(this, new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), () -> menuOpenProject()));
-
-        c.closeProjectMenuItem.setOnAction(e -> menuCloseProject());
-
-        c.compileMenuItem.setOnAction(e -> menuCompile());
-        Hotkeys.setHotkey("MenuCompile", new Hotkey(this, new KeyCodeCombination(KeyCode.F5), () -> menuCompile()));
-
-
-
-        shaderBar = new ShaderBar(this, c.shaderBar);
-
+        //Init static content. Some might use scene elements, so has to be done after that.
         Highlighter.init(this);
         OptionsWindow.init(this);
         AutoComplete.init(this);
 
 
+        //Set menu actions and hotkeys
+        controller.newMenuItem.setOnAction(e -> menuNew());
+        Hotkeys.setHotkey("MenuNew", new Hotkey(this, new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN), () -> menuNew()));
+
+
+        controller.openMenuItem.setOnAction(e -> menuOpen());
+        Hotkeys.setHotkey("MenuOpen", new Hotkey(this, new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN), () -> menuOpen()));
+
+
+        controller.saveMenuItem.setOnAction(e -> menuSave());
+        Hotkeys.setHotkey("MenuSave", new Hotkey(this, new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN), () -> menuSave()));
+
+
+        controller.saveAsMenuItem.setOnAction(e -> menuSaveAs());
+        Hotkeys.setHotkey("MenuSaveAs", new Hotkey(this, new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), () -> menuSaveAs()));
+
+        controller.reloadMenuItem.setOnAction(e -> menuReload());
+
+        controller.closeMenuItem.setOnAction(e -> menuClose());
+
+        controller.optionsMenuItem.setOnAction(e -> OptionsWindow.show());
+
+        controller.newProjectMenuItem.setOnAction(e -> menuNewProject());
+        Hotkeys.setHotkey("MenuNewProject", new Hotkey(this, new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), () -> menuNewProject()));
+
+        controller.openProjectMenuItem.setOnAction(e -> menuOpenProject());
+        Hotkeys.setHotkey("MenuOpenProject", new Hotkey(this, new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), () -> menuOpenProject()));
+
+        controller.closeProjectMenuItem.setOnAction(e -> menuCloseProject());
+
+        controller.compileMenuItem.setOnAction(e -> menuCompile());
+        Hotkeys.setHotkey("MenuCompile", new Hotkey(this, new KeyCodeCombination(KeyCode.F5), () -> menuCompile()));
+
+
+
+
+
+
 
         window.show();
 
-        c.shaderBar.getChildren().add(new Label());
-
 
     }
 
 
-
+    //Create new document and select it
     public void menuNew(){
         FileTab newTab = new FileTab(new Document(), this);
         fileBar.addTab(newTab);
-        select(newTab);
+        selectTab(newTab);
 
 
     }
 
+    //Open existing document
     public void menuOpen(){
+       //create dialog for opening files
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select file to open");
         fileChooser.setInitialDirectory(new File(initialDirectory));
@@ -151,29 +139,32 @@ public class Editor extends Application{
             Document doc = new Document(file.getAbsolutePath().replace('\\', '/'));
 
 
-
+            //if file is already open, just select it
             if(fileBar.hasTab(doc)) {
-                select(fileBar.getTab(doc));
+                selectTab(fileBar.getTab(doc));
                 return;
             }
 
-
+            //Create new tab and select it
             FileTab tab = new FileTab(doc, this);
             fileBar.addTab(tab);
-            select(tab);
+            selectTab(tab);
 
 
         }
     }
 
+    //Save document, create new file if document doesnt have one
     public void menuSave(){
         if(getActiveDocument() == null) return;
 
+        //If document has a file, save and be done with it
         if(getActiveDocument().isFile()){
             getActiveDocument().save();
             return;
         }
 
+        //Create save dialog
         FileChooser fc = new FileChooser();
         fc.setInitialDirectory(new File(initialDirectory));
         fc.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Plain text file", "*.txt"), new FileChooser.ExtensionFilter("Any file", "*.*"));
@@ -182,20 +173,21 @@ public class Editor extends Application{
 
         if(file == null) return;
 
-
+        //Create new file
         try {
             file.createNewFile();
         } catch (IOException e1) {
             e1.printStackTrace();
         }
 
-
+        //set file to document and save
         getActiveDocument().setFilename(file.getAbsolutePath().replace('\\', '/'));
 
         getActiveDocument().save();
 
     }
 
+    //Save to a new file, doesn't modify the original file(if there is one)
     public void menuSaveAs(){
         if(getActiveDocument() == null) return;
 
@@ -221,14 +213,31 @@ public class Editor extends Application{
 
     }
 
+    //Loads active document from file. Document loses all changes
+    public void menuReload(){
+        if(getActiveDocument() == null) return;
+        if(!getActiveDocument().isFile()) return;
+
+
+            //Sets documents text to files text, updates CodeArea to new text and sets saved to true(needs to be done so visuals realize that the document is saved)
+            getActiveDocument().load(getActiveDocument().getFilename());
+            getCodeArea().changeActiveDocument();
+            getActiveDocument().getSavedProperty().setValue(true);
+
+
+
+
+    }
+
+    //Closes current document without saving
     public void menuClose(){
         if(getActiveDocument() == null) return;
         fileBar.removeTab(fileBar.getSelectedTab());
     }
 
-
+    //Creates new project
     public void menuNewProject(){
-
+        //Create save dialog, because there is no new dialog, and project always needs a file.
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Create project file");
         fileChooser.setInitialDirectory(new File(initialDirectory));
@@ -237,6 +246,8 @@ public class Editor extends Application{
         File file =  fileChooser.showSaveDialog(window);
 
         if(file == null) return;
+
+        //If user chose an existing file, delete and re-create it(so basically replace it)
         if(file.exists()) file.delete();
         try {
             file.createNewFile();
@@ -254,6 +265,8 @@ public class Editor extends Application{
 
     }
 
+
+    //Open project file
    public void menuOpenProject(){
        FileChooser fileChooser = new FileChooser();
        fileChooser.setTitle("Select project to open");
@@ -268,7 +281,7 @@ public class Editor extends Application{
 
    }
 
-
+    //Closes current project file(without compiling)
     public void menuCloseProject(){
         project = null;
         shaderBar.setProject(null);
@@ -277,49 +290,47 @@ public class Editor extends Application{
 
     }
 
-
+    //Compiles the project
     public void menuCompile(){
         project.compile();
 
     }
 
-
+    //Sets current projects .shaders file
     public void menuSetShaderFile(){
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select .shaders File");
         fileChooser.setInitialDirectory(new File(getProject().getRelativeFolder()));
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Shaders file", "*.shaders"));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Shaders file", "*.shaders"), new FileChooser.ExtensionFilter("Any file", "*.*"));
 
-        File file =  fileChooser.showOpenDialog(window);
+        File file = fileChooser.showOpenDialog(window);
         if(file == null) return;
 
         project.setShadersFile(file.getAbsolutePath().replace("\\", "/"));
 
 
-
-
     }
 
 
-
-
-
-
+    //Adds stylesheet to scene
     public void addStyle(String file){
         scene.getStylesheets().add(getClass().getResource(file).toExternalForm());
     }
 
-    public void select(FileTab tab){
+    //Selects fileTab from filebar
+    public void selectTab(FileTab tab){
         fileBar.selectTab(tab);
         codeArea.changeActiveDocument();
     }
 
+    //Returns currently active document, or null if there is no active document
     public Document getActiveDocument(){
 
         if(fileBar.getSelectedTab() != null)return fileBar.getSelectedTab().getDocument();
         return null;
     }
+
 
     public FileBar getFileBar(){return fileBar;}
 
@@ -336,10 +347,6 @@ public class Editor extends Application{
     }
 
 
-
-    public Editor(){
-        windowTitle = "GLSLEditor";
-    }
 
 
 }

@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+//Class that represents a singe document. Might or might not be actual file, and contents might not march those of files.
 public class Document {
 
     private String text;
@@ -24,7 +25,7 @@ public class Document {
     private BooleanProperty saved;
 
 
-
+    //Constructs an empty document that has no file
     public Document(){
         filename = new SimpleStringProperty("New Document");
         saved = new SimpleBooleanProperty();
@@ -32,6 +33,7 @@ public class Document {
         text = "";
     }
 
+    //Constructs a document from a file
     public Document(String filename){
 
         this.filename = new SimpleStringProperty(filename);
@@ -40,7 +42,7 @@ public class Document {
         saved.set(true);
     }
 
-
+    //Sets the text of document to files text
     public void load(String filename){
         try {
             text = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
@@ -53,6 +55,7 @@ public class Document {
     }
 
 
+    //Saves the document. If this document has no file, does nothing
     public void save(){
         if(!isFile()) return;
 
@@ -90,6 +93,7 @@ public class Document {
 
     public void setText(String text){this.text = text; saved.set(false);}
 
+    //Returns the name of the file, with extension, without path. Used in UI elements.
     public String getName(){
 
 
