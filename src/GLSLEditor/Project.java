@@ -98,20 +98,18 @@ public class Project {
            // System.out.println(documents.get(s).getFilename());
             Document shaders = new Document(relativePathStart + shadersFilePath);
 
-            String text = documents.get(s).getText();
-
-            String parsedText = parseIncludes(text, new ArrayList<>());
+            String parsedText = parseIncludes(documents.get(s).getText(), new ArrayList<>());
 
             StringBuilder shadersText = new StringBuilder(shaders.getText());
 
 
             if(shadersText.length() == 0){
                 shadersText.append("\n");
-                shadersText.append((char)36);
+                shadersText.append('$');
                 shadersText.append("\n");
             }
 
-            int markIndex =  shadersText.indexOf(Character.toString((char) 36));
+            int markIndex =  shadersText.indexOf("$");
 
 
          //   if(true) return;
@@ -127,16 +125,16 @@ public class Project {
 
                     int change = 0;
 
-                System.out.println("Trying to find: " + relativeFilename);
+
                     while(m.find()){
                         String fileName = m.group(1);
                         int start = Integer.parseInt(m.group(2));
                         int end = Integer.parseInt(m.group(3));
-                        System.out.println("Maybe " + fileName);
-                        if(fileName.equals(relativeFilename)){
-                            System.out.println("Found: |" + fileName +"|");
 
-                            shadersText.replace(start, end, parsedText);
+                        if(fileName.equals(relativeFilename)){
+
+
+                            shadersText.replace(start + markIndex, end + markIndex, parsedText);
                             change = parsedText.length() - (end - start);
                             m.appendReplacement(b, fileName + " " + start + " " + (end + change) + "\n");
                             continue;
@@ -147,9 +145,7 @@ public class Project {
 
                     }
 
-                if(b.indexOf(Character.toString((char)36)) == -1){
-                    b.append((char)36);
-                }
+
                 shadersText.replace(0, markIndex, b.toString());
 
             }else{
