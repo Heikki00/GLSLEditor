@@ -16,6 +16,8 @@ public class Project {
     private Editor editor;
     private String relativePathStart;
     private String shadersFilePath;
+    private final static char SHADERS_DELIMITER = '$';
+
 
     //Constructs a new Project. Unlike document, project always needs a file.
     public Project(Editor editor, String filename){
@@ -118,27 +120,31 @@ public class Project {
 
 
 
-            
+            //If the shaders file is empty, add the delimiter
             if(shadersText.length() == 0){
                 shadersText.append("\n");
-                shadersText.append('$');
+                shadersText.append(SHADERS_DELIMITER);
                 shadersText.append("\n");
             }
 
-            int markIndex =  shadersText.indexOf("$");
+            int markIndex =  shadersText.indexOf(Character.toString(SHADERS_DELIMITER));
 
 
-         //   if(true) return;
 
+            //Filename of the current shader relative to .glsl file
             String relativeFilename = documents.get(s).getFilename().substring(relativePathStart.length());
 
             String shaderTable = shadersText.substring(0, markIndex);
 
+            //If this shader is already stored in this .shaders file
             if(shaderTable.contains(relativeFilename)){
+                //(not space or \n) (1 or more digits) (one or more digits)\n
                     Pattern p  = Pattern.compile("([^ \n]+) (\\d+) (\\d+)\n");
                     Matcher m = p.matcher(shaderTable);
+                    //Updated shader table
                     StringBuffer b = new StringBuffer();
 
+                //Change of lenght after updating shader source
                     int change = 0;
 
 
@@ -149,7 +155,7 @@ public class Project {
 
                         if(fileName.equals(relativeFilename)){
 
-
+                            //Replace shader source, calculate change of lenght, update values in shader table
                             shadersText.replace(start + markIndex, end + markIndex, parsedText);
                             change = parsedText.length() - (end - start);
                             m.appendReplacement(b, fileName + " " + start + " " + (end + change) + "\n");
@@ -165,7 +171,7 @@ public class Project {
                 shadersText.replace(0, markIndex, b.toString());
 
             }else{
-
+                //Add new row to shader table and add the source
                 shadersText.insert(markIndex, relativeFilename + " " + (shadersText.length() - markIndex) + " " + (shadersText.length() - markIndex + parsedText.length()) + "\n");
 
                 shadersText.append(parsedText);
@@ -176,15 +182,16 @@ public class Project {
             shaders.setText(shadersText.toString());
             shaders.save();
 
-            own.setText(own.getText() + s + documents.get(s).getFilename().substring(relativePathStart.length()) + "\n");
+            //Add this shader to .glsl file (with the prefix)
+            own.setText(own.getText() + s + relativeFilename + "\n");
 
 
-            own.save();
+
 
             documents.get(s).save();
         }
 
-
+        own.save();
 
     }
 

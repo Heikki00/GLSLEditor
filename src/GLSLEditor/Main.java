@@ -14,12 +14,14 @@ public class Main {
     * -standard of /
     * -version 430
     * -how .glsl is structured
-    * -how .shaders is structures
+    * -how .shaders is structured
     * -why i'm doing this
     * -performance standpoint (not important for this project)
     * -standard of filename vs name
     * -#include extension
     * -only including .glh
+    * -dependencies(richtextFX)
+    * -tab to spaces
     * */
 
 

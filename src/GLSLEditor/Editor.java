@@ -14,6 +14,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -21,9 +22,6 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 //Main class that manages everything. Is the JavaFX Application class, inits the subsystems, 
 public class Editor extends Application{
@@ -55,8 +53,10 @@ public class Editor extends Application{
         scene = new Scene(root, 800, 600);
         window.setScene(scene);
 
-        //Set stylesheet
+        //Set stylesheet and application icon
         addStyle("Layouts/MainLayout/MainLayoutStyle.css");
+        window.getIcons().add(new Image("file:Files/GLSLEditorIcon.png"));
+
         //Create the elements of main scene
         codeArea = new CodeArea(controller.mainCodeArea, this);
         fileBar = new FileBar(controller.activeFileBar, this);
@@ -104,7 +104,7 @@ public class Editor extends Application{
         Hotkeys.setHotkey("MenuCompile", new Hotkey(this, new KeyCodeCombination(KeyCode.F5), () -> menuCompile()));
 
 
-
+        controller.setShadersFileMenuItem.setOnAction(e -> menuSetShaderFile());
 
 
 
@@ -221,7 +221,7 @@ public class Editor extends Application{
 
             //Sets documents text to files text, updates CodeArea to new text and sets saved to true(needs to be done so visuals realize that the document is saved)
             getActiveDocument().load(getActiveDocument().getFilename());
-            getCodeArea().changeActiveDocument();
+            getCodeArea().updateActiveDocument();
             getActiveDocument().getSavedProperty().setValue(true);
 
 
@@ -318,10 +318,10 @@ public class Editor extends Application{
         scene.getStylesheets().add(getClass().getResource(file).toExternalForm());
     }
 
-    //Selects fileTab from filebar
+    //Selects fileTab from filebar and sets the document to CodeArea
     public void selectTab(FileTab tab){
         fileBar.selectTab(tab);
-        codeArea.changeActiveDocument();
+        codeArea.updateActiveDocument();
     }
 
     //Returns currently active document, or null if there is no active document

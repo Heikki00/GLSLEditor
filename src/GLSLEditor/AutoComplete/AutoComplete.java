@@ -82,7 +82,8 @@ public class AutoComplete {
 
 
                 for(String name : CodeDatabase.variableTypeStrings){
-                    if(!typed.isEmpty() && name.contains(typed)){
+                    if(name.matches("mat\\dx\\d")) continue;
+                    if(!typed.isEmpty() && name.startsWith(typed)){
                         if(typed.contains(name)) continue;
                         MenuItem m = new MenuItem(name);
                         Integer start = spacePos == 0 ? 0 : spacePos + 1;
