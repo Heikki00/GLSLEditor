@@ -1,5 +1,11 @@
 package GLSLEditor;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +22,7 @@ public class Project {
     private Editor editor;
     private String relativePathStart;
     private String shadersFilePath;
+    private BooleanProperty saved;
     private final static char SHADERS_DELIMITER = '$';
 
 
@@ -24,6 +31,7 @@ public class Project {
         documents = new HashMap<>();
         this.editor = editor;
         own = new Document(filename);
+        saved = new SimpleBooleanProperty(false);
 
         relativePathStart = filename.substring(0, filename.lastIndexOf("/") + 1);
 
@@ -34,7 +42,7 @@ public class Project {
         //Rest of the lines contain an identifier of shader(2 chars long) and relative filename to that shader
         boolean first = true;
         while(scan.hasNext()){
-
+            saved.setValue(true);
             if(first){
                 String s = scan.nextLine();
                 shadersFilePath = s;
@@ -64,6 +72,13 @@ public class Project {
         if(!doc.getAsFile().getAbsolutePath().replace("\\", "/").startsWith(relativePathStart)) throw new IllegalArgumentException("ERROR: called Project.setDocument with document that wasn't under project file's directory");
         documents.put(stage, doc);
 
+        doc.getSavedProperty().addListener(e ->{
+            saved.setValue(false);
+
+        });
+
+        saved.setValue(false);
+
     }
 
 
@@ -85,6 +100,16 @@ public class Project {
     public String getName(){
         return own.getName();
 
+    }
+
+    //Returns true if the project is saved(compiled)
+    public boolean getSaved(){
+        return saved.getValue();
+    }
+
+    //Self-explanatory, look "getSaved()"
+    public BooleanProperty getSavedProperty(){
+        return saved;
     }
 
     //Returns the full filename of .glsl document
@@ -192,6 +217,7 @@ public class Project {
         }
 
         own.save();
+        saved.setValue(true);
 
     }
 

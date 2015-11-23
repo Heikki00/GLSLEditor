@@ -256,7 +256,7 @@ public class Editor extends Application{
         }
 
         project = new Project(this, file.getAbsolutePath().replace("\\", "/"));
-        shaderBar.setProject(project);
+        shaderBar.updateProject();
 
         menuSetShaderFile();
 
@@ -276,7 +276,7 @@ public class Editor extends Application{
        File file =  fileChooser.showOpenDialog(window);
        if(file == null) return;
        project = new Project(this, file.getAbsolutePath().replace("\\", "/"));
-       shaderBar.setProject(project);
+       shaderBar.updateProject();
 
 
    }
@@ -284,7 +284,7 @@ public class Editor extends Application{
     //Closes current project file(without compiling)
     public void menuCloseProject(){
         project = null;
-        shaderBar.setProject(null);
+        shaderBar.updateProject();
 
 
 

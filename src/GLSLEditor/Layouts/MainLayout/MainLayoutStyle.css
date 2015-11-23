@@ -25,7 +25,7 @@
     -fx-font-weight: bold;
 }
 
-#ProjectTab_nono{
+#ProjectTab_noproject{
     -fx-opacity: 30%;
 
 }
@@ -47,4 +47,13 @@
 #ProjectTab_yes{
     -fx-font-weight: bold;
     -fx-opacity: 100%;
+}
+
+#ProjectTab_unsavedProject{
+ -fx-opacity: 100%;
+  -fx-font-weight: bold;
+}
+
+#ProjectTab_savedProject{
+     -fx-opacity: 50%;
 }

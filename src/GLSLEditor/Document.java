@@ -20,7 +20,7 @@ import java.nio.file.Paths;
 //Class that represents a singe document. Might or might not be actual file, and contents might not march those of files.
 public class Document {
 
-    private String text;
+    private StringProperty text;
     private StringProperty filename;
     private BooleanProperty saved;
 
@@ -30,23 +30,24 @@ public class Document {
         filename = new SimpleStringProperty("New Document");
         saved = new SimpleBooleanProperty();
         saved.set(false);
-        text = "";
+        text = new SimpleStringProperty();
     }
 
     //Constructs a document from a file
     public Document(String filename){
 
         this.filename = new SimpleStringProperty(filename);
-        load(filename);
+        this.text = new SimpleStringProperty();
         saved = new SimpleBooleanProperty();
+        load(filename);
         saved.set(true);
     }
 
     //Sets the text of document to files text
     public void load(String filename){
         try {
-            text = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
-            text = text.replace("\r", "");
+            text.setValue(new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8));
+            text.setValue(text.getValue().replace("\r", ""));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -88,10 +89,12 @@ public class Document {
     }
 
     public String getText(){
-        return text;
+        return text.getValue();
     }
 
-    public void setText(String text){this.text = text; saved.set(false);}
+    public void setText(String text){this.text.setValue(text); saved.set(false);}
+
+    public StringProperty getTextProperty(){return text;}
 
     //Returns the name of the file, with extension, without path. Used in UI elements.
     public String getName(){
