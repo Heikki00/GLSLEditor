@@ -24,7 +24,7 @@ public class Project {
     private String shadersFilePath;
     private BooleanProperty saved;
     private final static char SHADERS_DELIMITER = '$';
-
+    private org.fxmisc.undo.UndoManager undoManager;
 
     //Constructs a new Project. Unlike document, project always needs a file.
     public Project(Editor editor, String filename){

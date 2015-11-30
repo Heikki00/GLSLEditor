@@ -14,6 +14,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.stage.FileChooser;
@@ -53,7 +54,7 @@ public class Editor extends Application{
         scene = new Scene(root, 800, 600);
         window.setScene(scene);
 
-        //Set stylesheet and application icon
+        //Set stylesheet and application iconj
         addStyle("Layouts/MainLayout/MainLayoutStyle.css");
         window.getIcons().add(new Image("file:Files/GLSLEditorIcon.png"));
 
@@ -232,6 +233,13 @@ public class Editor extends Application{
     //Closes current document without saving
     public void menuClose(){
         if(getActiveDocument() == null) return;
+
+        if(!getActiveDocument().isSaved()){
+            Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+            a.se;
+            a.showAndWait();
+        }
+
         fileBar.removeTab(fileBar.getSelectedTab());
     }
 

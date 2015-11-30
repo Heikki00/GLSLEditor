@@ -30,14 +30,14 @@ public class Document {
         filename = new SimpleStringProperty("New Document");
         saved = new SimpleBooleanProperty();
         saved.set(false);
-        text = new SimpleStringProperty();
+        text = new SimpleStringProperty("");
     }
 
     //Constructs a document from a file
     public Document(String filename){
 
         this.filename = new SimpleStringProperty(filename);
-        this.text = new SimpleStringProperty();
+        this.text = new SimpleStringProperty("");
         saved = new SimpleBooleanProperty();
         load(filename);
         saved.set(true);
