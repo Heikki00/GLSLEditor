@@ -9,6 +9,7 @@ import GLSLEditor.Highlighting.Highlighter;
 import GLSLEditor.Hotkey.Hotkey;
 import GLSLEditor.Hotkey.Hotkeys;
 import GLSLEditor.Layouts.MainLayout.MainLayoutController;
+import GLSLEditor.Options.Options;
 import GLSLEditor.Options.OptionsWindow;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -17,6 +18,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.input.*;
+import javafx.scene.input.KeyCombination;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -56,7 +58,9 @@ public class Editor extends Application{
 
         //Set stylesheet and application iconj
         addStyle("Layouts/MainLayout/MainLayoutStyle.css");
-        window.getIcons().add(new Image("file:Files/GLSLEditorIcon.png"));
+
+
+        window.getIcons().add(new Image("file:GLSLEditorIcon.png"));
 
         //Create the elements of main scene
         codeArea = new CodeArea(controller.mainCodeArea, this);
@@ -69,12 +73,12 @@ public class Editor extends Application{
         Highlighter.init(this);
         OptionsWindow.init(this);
         AutoComplete.init(this);
-
+        Options.init(this);
 
         //Set menu actions and hotkeys
         controller.newMenuItem.setOnAction(e -> menuNew());
-        Hotkeys.setHotkey("MenuNew", new Hotkey(this, new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN), () -> menuNew()));
-
+      //  Hotkeys.setHotkey("MenuNew", new Hotkey(this, new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN), () -> menuNew()));
+        Hotkeys.setHotkey("MenuNew", new Hotkey(this, KeyCombination.valueOf("Ctrl+N"), () -> menuNew()));
 
         controller.openMenuItem.setOnAction(e -> menuOpen());
         Hotkeys.setHotkey("MenuOpen", new Hotkey(this, new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN), () -> menuOpen()));
@@ -113,6 +117,10 @@ public class Editor extends Application{
         window.show();
 
 
+
+
+
+
     }
 
 
@@ -120,6 +128,7 @@ public class Editor extends Application{
     public void menuNew(){
         FileTab newTab = new FileTab(new Document(), this);
         fileBar.addTab(newTab);
+        newTab.getDocument().setText(Main.arg.length == 0 ? "0" : Main.arg[0]);
         selectTab(newTab);
 
 
@@ -234,12 +243,6 @@ public class Editor extends Application{
     public void menuClose(){
         if(getActiveDocument() == null) return;
 
-        if(!getActiveDocument().isSaved()){
-            Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-            a.se;
-            a.showAndWait();
-        }
-
         fileBar.removeTab(fileBar.getSelectedTab());
     }
 
@@ -323,7 +326,7 @@ public class Editor extends Application{
 
     //Adds stylesheet to scene
     public void addStyle(String file){
-        scene.getStylesheets().add(getClass().getResource(file).toExternalForm());
+        scene.getStylesheets().add(Editor.class.getResource(file).toExternalForm());
     }
 
     //Selects fileTab from filebar and sets the document to CodeArea

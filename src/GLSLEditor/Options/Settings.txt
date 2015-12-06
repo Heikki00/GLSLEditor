@@ -1,0 +1,8 @@
+<hotkeys>
+MenuNew Ctrl+N MenuNew
+MenuOpen Ctrl+O MenuOpen
+MenuSaveAs Ctrl+Shift+S MenuSaveAs
+MenuNewProject Ctrl+Shift+N MenuNewProject
+MenuOpenProject Ctrl+Shift+N MenuOpenProject
+MenuCompile F5 MenuCompile
+</hotkeys>

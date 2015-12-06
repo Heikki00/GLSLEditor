@@ -2,13 +2,8 @@
   <artifact type="jar" build-on-make="true" name="GLSLEditor">
     <output-path>$PROJECT_DIR$/out/artifacts/GLSLEditor</output-path>
     <root id="archive" name="GLSLEditor.jar">
-      <element id="archive" name="GLSLEditor.jar">
-        <element id="module-output" name="GLSLEditor" />
-        <element id="file-copy" path="$PROJECT_DIR$/richtextfx-fat-0.6.10.jar" />
-        <element id="directory" name="META-INF">
-          <element id="file-copy" path="$PROJECT_DIR$/out/artifacts/GLSLEditor/META-INF/MANIFEST.MF" />
-        </element>
-      </element>
+      <element id="module-output" name="GLSLEditor" />
+      <element id="file-copy" path="$PROJECT_DIR$/richtextfx-fat-0.6.10.jar" />
       <element id="directory" name="META-INF">
         <element id="file-copy" path="$PROJECT_DIR$/out/artifacts/GLSLEditor/META-INF/MANIFEST.MF" />
       </element>

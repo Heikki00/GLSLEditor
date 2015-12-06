@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class Highlighter {
     private static Editor editor;
     public static void init(Editor editor){
-        editor.addStyle("Highlighting/HighLightStyles.css");
+        editor.addStyle("Highlighting/HighlightStyles.css");
         Highlighter.editor = editor;
     }
 
