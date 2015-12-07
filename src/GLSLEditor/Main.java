@@ -29,7 +29,7 @@ public class Main {
 
     //Starting point of this program. Launches instance of editor.
     public static void main(String[] args) {
-        arg = args;
+
 
         Editor e = new Editor();
         e.launch(Editor.class);

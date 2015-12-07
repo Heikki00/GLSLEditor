@@ -1,8 +1,14 @@
 <hotkeys>
-MenuNew Ctrl+N MenuNew
-MenuOpen Ctrl+O MenuOpen
-MenuSaveAs Ctrl+Shift+S MenuSaveAs
-MenuNewProject Ctrl+Shift+N MenuNewProject
-MenuOpenProject Ctrl+Shift+N MenuOpenProject
-MenuCompile F5 MenuCompile
+menuNew Ctrl+N menuNew
+menuOpen Ctrl+O menuOpen
+menuSaveAs Ctrl+Shift+S menuSaveAs
+menuNewProject Ctrl+Shift+N menuNewProject
+menuOpenProject Ctrl+Shift+N menuOpenProject
+menuCompile F5 menuCompile
 </hotkeys>
+
+
+<defFolder>
+defFolderProperty user.home
+defaultFolder C:/
+</defFolder>

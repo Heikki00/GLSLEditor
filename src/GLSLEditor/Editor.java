@@ -33,7 +33,7 @@ public class Editor extends Application{
     private String windowTitle = "GLSLEditor";
     private CodeArea codeArea;
     private FileBar fileBar;
-    private final String initialDirectory = System.getProperty("user.home");
+
     private Project project;
     private MainLayoutController controller;
     private ShaderBar shaderBar;
@@ -78,7 +78,7 @@ public class Editor extends Application{
         //Set menu actions and hotkeys
         controller.newMenuItem.setOnAction(e -> menuNew());
       //  Hotkeys.setHotkey("MenuNew", new Hotkey(this, new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN), () -> menuNew()));
-        Hotkeys.setHotkey("MenuNew", new Hotkey(this, KeyCombination.valueOf("Ctrl+N"), () -> menuNew()));
+       // Hotkeys.setHotkey("MenuNew", new Hotkey(this, KeyCombination.valueOf("Ctrl+N"), () -> menuNew()));
 
         controller.openMenuItem.setOnAction(e -> menuOpen());
         Hotkeys.setHotkey("MenuOpen", new Hotkey(this, new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN), () -> menuOpen()));
@@ -128,7 +128,7 @@ public class Editor extends Application{
     public void menuNew(){
         FileTab newTab = new FileTab(new Document(), this);
         fileBar.addTab(newTab);
-        newTab.getDocument().setText(Main.arg.length == 0 ? "0" : Main.arg[0]);
+
         selectTab(newTab);
 
 
@@ -139,7 +139,7 @@ public class Editor extends Application{
        //create dialog for opening files
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select file to open");
-        fileChooser.setInitialDirectory(new File(initialDirectory));
+        fileChooser.setInitialDirectory(new File(Options.getDefaultFolder()));
 
         File file =  fileChooser.showOpenDialog(null);
 
@@ -176,7 +176,7 @@ public class Editor extends Application{
 
         //Create save dialog
         FileChooser fc = new FileChooser();
-        fc.setInitialDirectory(new File(initialDirectory));
+        fc.setInitialDirectory(new File(Options.getDefaultFolder()));
         fc.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Plain text file", "*.txt"), new FileChooser.ExtensionFilter("Any file", "*.*"));
 
         File file = fc.showSaveDialog(window);
@@ -202,7 +202,7 @@ public class Editor extends Application{
         if(getActiveDocument() == null) return;
 
         FileChooser fc = new FileChooser();
-        fc.setInitialDirectory(new File(initialDirectory));
+        fc.setInitialDirectory(new File(Options.getDefaultFolder()));
         fc.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Plain text file", "*.txt"), new FileChooser.ExtensionFilter("Any file", "*.*"));
 
         File file = fc.showSaveDialog(window);
@@ -251,7 +251,7 @@ public class Editor extends Application{
         //Create save dialog, because there is no new dialog, and project always needs a file.
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Create project file");
-        fileChooser.setInitialDirectory(new File(initialDirectory));
+        fileChooser.setInitialDirectory(new File(Options.getDefaultFolder()));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("GLSL project", "*.glsl"));
 
         File file =  fileChooser.showSaveDialog(window);
@@ -281,7 +281,7 @@ public class Editor extends Application{
    public void menuOpenProject(){
        FileChooser fileChooser = new FileChooser();
        fileChooser.setTitle("Select project to open");
-       fileChooser.setInitialDirectory(new File(initialDirectory));
+       fileChooser.setInitialDirectory(new File(Options.getDefaultFolder()));
        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("GLSL project", "*.glsl"));
 
        File file =  fileChooser.showOpenDialog(window);
@@ -303,6 +303,7 @@ public class Editor extends Application{
 
     //Compiles the project
     public void menuCompile(){
+        if(project == null) return;
         project.compile();
 
     }

@@ -23,12 +23,13 @@ public class Options {
 
         private static Editor editor;
         private static String optionsFile = "Settings.txt";
-
+        private static String defaultFolder;
 
         public static void init(Editor editor){
             Options.editor = editor;
             String text = "";
 
+            //Read the file
             try {
                 File file = new File(Options.class.getResource(optionsFile).getFile());
                 text = new String(Files.readAllBytes(file.toPath()));
@@ -38,19 +39,20 @@ public class Options {
                 e.printStackTrace();
             }
 
+            //Pattern and Matcher for finding hotkeys
             Pattern p  = Pattern.compile("([^ \n]+) ([^ \n]+) ([^ \n]+)");
 
             Matcher m = p.matcher(text.substring(text.indexOf("<hotkeys>"), text.indexOf("</hotkeys>")));
 
-            //System.out.println(text.substring(text.indexOf("<hotkeys>"), text.indexOf("</hotkeys>")));
-
+            //Loop through hotkeys, add them
             while(m.find()){
 
 
                 try {
-                    Method met = editor.getClass().getDeclaredMethod(m.group(3));
+                    Method met = Editor.class.getDeclaredMethod(m.group(3));
 
                     Hotkeys.setHotkey(m.group(1), new Hotkey(editor, KeyCombination.valueOf(m.group(2)), () -> {
+
                         try {
                             met.invoke(editor);
                         } catch (IllegalAccessException e) {
@@ -58,6 +60,7 @@ public class Options {
                         } catch (InvocationTargetException e) {
                             e.printStackTrace();
                         }
+
 
                     }));
 
@@ -67,17 +70,40 @@ public class Options {
                     e.printStackTrace();
 
                 }
+                }
 
-                System.out.println(m.group(1) + ":" + m.group(2) + ":" + m.group(3));
 
 
+                 p  = Pattern.compile("([^ \n]+) ([^ \n]+)");
+
+                m = p.matcher(text.substring(text.indexOf("<defFolder>"), text.indexOf("</defFolder>")));
+
+                while(m.find()){
+                    if(m.group(1).equals("defFolderProperty")){
+                        if(!m.group(2).equals("null")){
+                            defaultFolder = System.getProperty(m.group(2));
+                            break;
                         }
+
+
+                    }
+
+                    if(m.group(1).equals("defFolder")){
+                        defaultFolder = m.group(2);
+                        break;
+                    }
+
+
+                }
 
 
             }
 
 
+            public static String getDefaultFolder(){
+                return defaultFolder;
 
+            }
 
 
 

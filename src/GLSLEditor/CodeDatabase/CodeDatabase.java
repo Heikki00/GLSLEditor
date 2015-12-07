@@ -8,11 +8,14 @@ public class CodeDatabase {
 
     public static Set<String> GLSLscalars, GLSLalgebraTypes, GLSLvectors, GLSLMatrices, GLSLKeywords;
 
+
     public static Set<GLSLVariable> variables;
 
     public static Set<GLSLType> variableTypes;
 
     public static Set<String> variableTypeStrings;
+
+
 
     static{
         variables = new HashSet<>();
@@ -20,6 +23,7 @@ public class CodeDatabase {
         GLSLalgebraTypes = new HashSet<>();
         GLSLvectors = new HashSet<>();
         GLSLMatrices = new HashSet<>();
+
         variableTypes = new HashSet<>();
         variableTypeStrings = new HashSet<>();
         GLSLKeywords = new HashSet<>();
@@ -29,6 +33,8 @@ public class CodeDatabase {
                 "else", "subroutine", "in", "out", "inout", "invariant", "precise", "discard", "return", "struct", "layout", "location");
 
         Collections.addAll(GLSLscalars, "bool", "int", "uint", "float", "double", "void", "atomic_uint");
+
+
 
         for(int i = 2; i <= 4; ++i){
             Collections.addAll(GLSLvectors, "bvec" + i, "ivec" + i, "uvec" + i, "vec" + i, "dvec" + i);
