@@ -1,24 +1,24 @@
 package GLSLEditor.CodeDatabase;
-import GLSLEditor.Highlighting.Highlighter;
 import javafx.util.Pair;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class CodeDatabase {
 
     public static Set<String> GLSLscalars, GLSLalgebraTypes, GLSLvectors, GLSLMatrices, GLSLKeywords;
 
 
-    public static Set<GLSLVariable> variables;
+    public static Set<GLSLVariable> defaultVariables;
 
     public static Set<GLSLType> variableTypes;
 
     public static Set<String> variableTypeStrings;
 
-
+    public static List<GLSLVariable> variables = new ArrayList<>();
 
     static{
-        variables = new HashSet<>();
+        defaultVariables = new HashSet<>();
         GLSLscalars = new HashSet<>();
         GLSLalgebraTypes = new HashSet<>();
         GLSLvectors = new HashSet<>();
@@ -207,14 +207,14 @@ public class CodeDatabase {
     }
 
 
+
+    public static List<GLSLVariable> getVariables(){
+        return variables;
+
+    }
+
+
     public static void update(String code){
-        if(code.length() > new String("#version 430").length() && !code.startsWith("#version")){
-            Highlighter.addError(0, new String("#version 430").length());
-
-
-        }
-
-
 
 
 

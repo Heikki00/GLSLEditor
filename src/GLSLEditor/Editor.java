@@ -111,7 +111,7 @@ public class Editor extends Application{
 
         controller.setShadersFileMenuItem.setOnAction(e -> menuSetShaderFile());
 
-
+        controller.removeStageMenuItem.setOnAction(e -> menuRemoveStage());
 
 
         window.show();
@@ -310,7 +310,7 @@ public class Editor extends Application{
 
     //Sets current projects .shaders file
     public void menuSetShaderFile(){
-
+        if(project == null) return;
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select .shaders File");
         fileChooser.setInitialDirectory(new File(getProject().getRelativeFolder()));
@@ -323,6 +323,17 @@ public class Editor extends Application{
 
 
     }
+
+
+    public void menuRemoveStage(){
+        if(project == null) return;
+
+        if(project.hasDocument(getActiveDocument()))
+        project.removeDocument(getActiveDocument());
+
+
+    }
+
 
 
     //Adds stylesheet to scene
@@ -353,6 +364,9 @@ public class Editor extends Application{
 
     public Project getProject(){return project;}
 
+    public ShaderBar getShaderBar(){
+        return shaderBar;
+    }
 
     public Stage getWindow(){
         return window;

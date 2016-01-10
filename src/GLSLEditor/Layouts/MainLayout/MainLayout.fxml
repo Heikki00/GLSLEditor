@@ -38,7 +38,10 @@
                     <MenuItem fx:id="closeProjectMenuItem" mnemonicParsing="false" text="Close Project" />
                     <MenuItem fx:id="compileMenuItem" mnemonicParsing="false" text="Compile" />
                     <MenuItem fx:id="setShadersFileMenuItem" mnemonicParsing="false" text="Select .shaders File" />
+                    <MenuItem fx:id="removeStageMenuItem" mnemonicParsing="false" text="Remove Stage" />
                 </items>
+
+
             </Menu>
 
         </menus>

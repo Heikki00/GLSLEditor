@@ -96,7 +96,7 @@ public class CodeArea {
         if (newVal.contains("\t")) {
 
             newVal = newVal.replace("\t", "        ");
-            area.positionCaret(area.getCaretPosition() + 8);
+            area.positionCaret(area.getCaretPosition() + 7);
 
         }
 

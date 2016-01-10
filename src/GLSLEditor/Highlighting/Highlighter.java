@@ -37,6 +37,7 @@ public class Highlighter {
     private static List<Range> errors = new ArrayList<>();
 
 
+
     public static void highlight(String text){
 
 
@@ -71,14 +72,6 @@ public class Highlighter {
 
 
         editor.getCodeArea().setStyle(styles);
-
-
-        for(Range r : errors){
-
-
-        }
-
-
 
 
 

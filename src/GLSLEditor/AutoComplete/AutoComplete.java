@@ -33,26 +33,33 @@ public class AutoComplete {
 
         StringBuilder build = new StringBuilder(newVal);
 
+        //If only one character is inputted
         if(oldVal.length() + 1 == newVal.length()) {
 
-            if (newVal.charAt(cursorPos - 1) == '(') {
-              build.insert(cursorPos, ')');
+            char open[] = {'(', '{', '['};
+            char close[] = {')', '}', ']'};
+
+            //Loop through autocomplitable characters
+            for(int i = 0; i < 3; ++i){
+
+                //If the opening char was the input and the last charater, just add the closing char
+                if(build.charAt(cursorPos - 1) == open[i] && cursorPos == build.length()) build.insert(cursorPos, close[i]);
+
+                //If opening char was inputted
+                if (build.charAt(cursorPos - 1) == open[i])
+                    //If char after opening is space, line end or any other permitted character
+                    if (build.charAt(cursorPos) == ' ' || build.charAt(cursorPos) == '\n' ||
+                            build.charAt(cursorPos) == close[i == 0 ? 1 : i == 1 ? 2 : 0] || build.charAt(cursorPos) == close[i == 0 ? 2 : i == 1 ? 0 : 1] ||
+                            build.charAt(cursorPos) == open[i == 0 ? 1 : i == 1 ? 2 : 0] || build.charAt(cursorPos) == open[i == 0 ? 2 : i == 1 ? 0 : 1])
+                                     build.insert(cursorPos, close[i]);
+
+
+
+
 
             }
 
-            if (newVal.charAt(cursorPos - 1) == '{') {
-               build.insert(cursorPos, '}');
 
-            }
-
-            if(newVal.charAt(cursorPos - 1) == ')' && newVal.charAt(cursorPos - 2) == '('){
-                build.deleteCharAt(cursorPos - 1);
-
-            }
-            if(newVal.charAt(cursorPos - 1) == '}' && newVal.charAt(cursorPos - 2) == '{'){
-                build.deleteCharAt(cursorPos - 1);
-
-            }
 
 
         }

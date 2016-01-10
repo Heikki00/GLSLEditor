@@ -89,11 +89,41 @@ public class Project {
 
 
     public void removeDocument(String stage){
-        documents.put(stage, null);
+        documents.remove(stage);
+        saved.setValue(false);
+        editor.getShaderBar().updateProject();
     }
+
+    public void removeDocument(Document doc){
+
+        for(String s : documents.keySet()){
+            if(documents.get(s).equals(doc)){
+                documents.remove(s);
+                saved.setValue(false);
+                editor.getShaderBar().updateProject();
+                return;
+            }
+        }
+
+        throw new IllegalArgumentException("ERROR: Tried to remove document " + doc.getFilename() + " from project " + own.getFilename());
+
+    }
+
 
     public boolean hasDocument(String stage){
         return documents.get(stage) != null;
+    }
+
+    public boolean hasDocument(Document doc)
+    {
+        for(String s : documents.keySet()){
+            if(documents.get(s).equals(doc)){
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //Returns the NAME of .glsl document(note: not filename). Used for UI purposes.
@@ -258,14 +288,12 @@ public class Project {
                 continue;
             }
 
-            //Create file. If filename does not contain .glh extension, add it
-            File file = new File(relativePathStart + (filename.contains(".ghl") ? filename : filename + ".glh"));
 
             String includedText = "";
 
             //Read the file
             try {
-                includedText = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
+                includedText = new String(Files.readAllBytes(Paths.get(relativePathStart + filename)), StandardCharsets.UTF_8);
                 includedText = includedText.replace("\r", "");
             } catch (IOException e) {
                 e.printStackTrace();

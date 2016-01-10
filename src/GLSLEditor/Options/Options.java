@@ -74,7 +74,7 @@ public class Options {
 
 
 
-                 p  = Pattern.compile("([^ \n]+) ([^ \n]+)");
+                 p  = Pattern.compile("([^ \n]+) ([^\n]+)");
 
                 m = p.matcher(text.substring(text.indexOf("<defFolder>"), text.indexOf("</defFolder>")));
 
@@ -90,6 +90,7 @@ public class Options {
 
                     if(m.group(1).equals("defFolder")){
                         defaultFolder = m.group(2);
+
                         break;
                     }
 

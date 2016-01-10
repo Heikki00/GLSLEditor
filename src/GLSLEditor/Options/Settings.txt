@@ -9,6 +9,6 @@ menuCompile F5 menuCompile
 
 
 <defFolder>
-defFolderProperty user.home
-defaultFolder C:/
+defFolderProperty null
+defFolder C:\\Users\\Heikki\\Documents\\Visual Studio 2015\\Projects\\FestusEngine\\FestusEngine\\Resources\\Shaders
 </defFolder>
