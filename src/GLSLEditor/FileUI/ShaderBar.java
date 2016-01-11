@@ -112,7 +112,7 @@ public class ShaderBar {
                 if (result.get() == newFile) {
                     FileChooser fileChooser = new FileChooser();
                     fileChooser.setTitle("Create new file");
-                    fileChooser.setInitialDirectory(new File(editor.getProject().getRelativeFolder()));
+                    fileChooser.setInitialDirectory(new File(editor.getProject().getWorkFolder()));
                     fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("GLSL shader", "*." + s));
 
                     File file = fileChooser.showSaveDialog(null);
@@ -151,7 +151,7 @@ public class ShaderBar {
                 } else if (result.get() == openFile){
                     FileChooser fileChooser = new FileChooser();
                     fileChooser.setTitle("Open file");
-                    fileChooser.setInitialDirectory(new File(editor.getProject().getRelativeFolder()));
+                    fileChooser.setInitialDirectory(new File(editor.getProject().getWorkFolder()));
                     fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("GLSL shader", "*." + s));
 
                     File file = fileChooser.showOpenDialog(null);

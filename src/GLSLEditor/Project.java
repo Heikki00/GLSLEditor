@@ -20,56 +20,62 @@ public class Project {
     private Map<String, Document> documents;
     private Document own;
     private Editor editor;
-    private String relativePathStart;
-    private String shadersFilePath;
+    private String workFolder;
+    private String shadersFile;
     private BooleanProperty saved;
     private final static char SHADERS_DELIMITER = '$';
     private org.fxmisc.undo.UndoManager undoManager;
 
     //Constructs a new Project. Unlike document, project always needs a file.
-    public Project(Editor editor, String filename){
+    public Project(Editor editor, String filename, String workFolder){
         documents = new HashMap<>();
         this.editor = editor;
         own = new Document(filename);
         saved = new SimpleBooleanProperty(false);
 
-        relativePathStart = filename.substring(0, filename.lastIndexOf("/") + 1);
+        this.workFolder = workFolder;
 
 
         Scanner scan = new Scanner(own.getText());
-
-        //Read the .glsl file. First line contains .shaders file path relative to project file(.glsl)
+        scan.useDelimiter("\n");
+        //Read the .glsl file. First line contains .shaders file path relative to work folder
         //Rest of the lines contain an identifier of shader(2 chars long) and relative filename to that shader
-        boolean first = true;
+        int num = 0;
         while(scan.hasNext()){
             saved.setValue(true);
-            if(first){
+            if(num == 0){
                 String s = scan.nextLine();
-                shadersFilePath = s;
-                first = false;
+                workFolder = s;
+                System.out.println(workFolder);
+                continue;
+            }
+
+            else if(num == 1){
+                String s = scan.nextLine();
+                shadersFile = s;
                 continue;
             }
 
             String s = scan.nextLine();
             if(s.isEmpty()) continue;
-            String s1 = relativePathStart + s.substring(2);
+            String s1 = workFolder + s.substring(2);
 
             documents.put(s.substring(0, 2), new Document(s1));
         }
 
-
+        num++;
     }
 
     //Sets the .shaders file. Parameter file is a ABSOLUTE path to .shaders file, this function shortens it to relative path.
     public void setShadersFile(String file){
-        shadersFilePath = file.substring(relativePathStart.length());
+        shadersFile = file.substring(workFolder.length());
 
     }
 
     //Sets a shader. Stage is an identifier(vs,gs,tc,ts,fs)
     public void setDocument(String stage, Document doc){
         if(!doc.isFile()) throw new IllegalArgumentException("ERROR: Tried to add non-file document to project");
-        if(!doc.getAsFile().getAbsolutePath().replace("\\", "/").startsWith(relativePathStart)) throw new IllegalArgumentException("ERROR: called Project.setDocument with document that wasn't under project file's directory");
+        if(!doc.getAsFile().getAbsolutePath().replace("\\", "/").startsWith(workFolder)) throw new IllegalArgumentException("ERROR: called Project.setDocument with document that wasn't under project file's directory");
         documents.put(stage, doc);
 
         doc.getSavedProperty().addListener(e ->{
@@ -146,21 +152,22 @@ public class Project {
     public String getFilename(){return own.getFilename();}
 
     //Returns path to folder that contains the .glsl file
-    public String getRelativeFolder(){return relativePathStart;}
+    public String getWorkFolder(){return workFolder;}
 
     //Compiles the shader. Parses all the includes of shaders and writes them to .shaders file
     public void compile(){
         own.setText("");
 
-        if(shadersFilePath == null ||shadersFilePath.isEmpty()){
+        if(shadersFile == null || shadersFile.isEmpty()){
             throw new IllegalStateException("ERROR: Tried to compile shader " + own.getFilename() + " without.shaders file!");
 
         }
 
-        own.setText(shadersFilePath + "\n");
+        own.setText(workFolder + "\n" + shadersFile + "\n");
+
 
         //Get text from .shaders file
-        Document shaders = new Document(relativePathStart + shadersFilePath);
+        Document shaders = new Document(workFolder + shadersFile);
         StringBuilder shadersText = new StringBuilder(shaders.getText());
 
 
@@ -187,7 +194,7 @@ public class Project {
 
 
             //Filename of the current shader relative to .glsl file
-            String relativeFilename = documents.get(s).getFilename().substring(relativePathStart.length());
+            String relativeFilename = documents.get(s).getFilename().substring(workFolder.length());
 
             String shaderTable = shadersText.substring(0, markIndex);
 
@@ -293,7 +300,7 @@ public class Project {
 
             //Read the file
             try {
-                includedText = new String(Files.readAllBytes(Paths.get(relativePathStart + filename)), StandardCharsets.UTF_8);
+                includedText = new String(Files.readAllBytes(Paths.get(workFolder + filename)), StandardCharsets.UTF_8);
                 includedText = includedText.replace("\r", "");
             } catch (IOException e) {
                 e.printStackTrace();

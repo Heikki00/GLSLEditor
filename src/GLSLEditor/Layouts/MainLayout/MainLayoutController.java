@@ -1,5 +1,6 @@
 package GLSLEditor.Layouts.MainLayout;
 
+import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.MenuItem;
@@ -20,7 +21,7 @@ public class MainLayoutController implements Initializable{
     public HBox activeFileBar, shaderBar;
     public MenuItem openMenuItem, saveMenuItem, saveAsMenuItem, closeMenuItem, newMenuItem, optionsMenuItem,
             compileMenuItem, openProjectMenuItem, closeProjectMenuItem, newProjectMenuItem, setShadersFileMenuItem, reloadMenuItem, removeStageMenuItem;
-
+    public SwingNode swingNode;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {

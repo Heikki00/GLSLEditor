@@ -23,6 +23,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -39,7 +42,6 @@ public class Editor extends Application{
     private ShaderBar shaderBar;
 
 
-
     //Star method of the application. Creates window, loads the first scene, inits static content, sets up hotkeys etc.
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -52,9 +54,16 @@ public class Editor extends Application{
         controller = loader.getController();
 
 
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
         //Create scene
         scene = new Scene(root, 800, 600);
         window.setScene(scene);
+        javax.swing.JLabel j = new javax.swing.JLabel("");
+        j.setMaximumSize(new Dimension(0,0));
+
+        controller.swingNode.setContent(j);
+
 
         //Set stylesheet and application iconj
         addStyle("Layouts/MainLayout/MainLayoutStyle.css");
@@ -248,25 +257,49 @@ public class Editor extends Application{
 
     //Creates new project
     public void menuNewProject(){
+
+        JFileChooser j = new JFileChooser();
+        j.setDialogTitle("Select work directory");
+        j.setCurrentDirectory(new File(Options.getDefaultFolder()));
+        j.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        j.setAcceptAllFileFilterUsed(false);
+        int res = j.showOpenDialog(controller.swingNode.getContent());
+
+        if(res != JFileChooser.APPROVE_OPTION) return;
+
+        File dir = j.getSelectedFile();
+
         //Create save dialog, because there is no new dialog, and project always needs a file.
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Create project file");
-        fileChooser.setInitialDirectory(new File(Options.getDefaultFolder()));
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("GLSL project", "*.glsl"));
 
-        File file =  fileChooser.showSaveDialog(window);
 
-        if(file == null) return;
+        j.setDialogTitle("Create project file");
+        j.setCurrentDirectory(new File(dir.getAbsolutePath()));
+        j.setFileFilter(new FileNameExtensionFilter("GLSL Project File", "glsl"));
+        j.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        j.setAcceptAllFileFilterUsed(true);
+        res = j.showSaveDialog(controller.swingNode.getContent());
+
+        if(res != JFileChooser.APPROVE_OPTION) return;
+
+        //Add the .glsl if it isn't there already
+        File projFile = j.getSelectedFile();
+        if(!projFile.getAbsolutePath().contains(".glsl")){
+            projFile = new File(projFile.getAbsolutePath() + ".glsl");
+
+        }
+
 
         //If user chose an existing file, delete and re-create it(so basically replace it)
-        if(file.exists()) file.delete();
+        if(projFile.exists()) projFile.delete();
         try {
-            file.createNewFile();
+            projFile.createNewFile();
         } catch (IOException e1) {
             e1.printStackTrace();
         }
 
-        project = new Project(this, file.getAbsolutePath().replace("\\", "/"));
+
+
+        project = new Project(this, projFile.getAbsolutePath().replace("\\", "/"), dir.getAbsolutePath().replace("\\", "/"));
         shaderBar.updateProject();
 
         menuSetShaderFile();
@@ -286,7 +319,7 @@ public class Editor extends Application{
 
        File file =  fileChooser.showOpenDialog(window);
        if(file == null) return;
-       project = new Project(this, file.getAbsolutePath().replace("\\", "/"));
+       project = new Project(this, file.getAbsolutePath().replace("\\", "/"), "");
        shaderBar.updateProject();
 
 
@@ -313,7 +346,7 @@ public class Editor extends Application{
         if(project == null) return;
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select .shaders File");
-        fileChooser.setInitialDirectory(new File(getProject().getRelativeFolder()));
+        fileChooser.setInitialDirectory(new File(getProject().getWorkFolder()));
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Shaders file", "*.shaders"), new FileChooser.ExtensionFilter("Any file", "*.*"));
 
         File file = fileChooser.showOpenDialog(window);

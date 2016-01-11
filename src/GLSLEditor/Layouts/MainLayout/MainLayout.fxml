@@ -10,6 +10,7 @@
 
 <?import org.fxmisc.richtext.CodeArea?>
 
+<?import javafx.embed.swing.SwingNode?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GLSLEditor.Layouts.MainLayout.MainLayoutController">
    <children>
       <MenuBar>
@@ -49,5 +50,6 @@
       <HBox fx:id="activeFileBar" alignment="CENTER_LEFT" prefHeight="25.0" prefWidth="600.0" />
       <CodeArea fx:id="mainCodeArea" prefHeight="350.0" prefWidth="600.0" VBox.vgrow="ALWAYS" />
       <HBox fx:id="shaderBar" prefHeight="22.0" prefWidth="600.0" />
+       <SwingNode fx:id="swingNode"/>
    </children>
 </VBox>
