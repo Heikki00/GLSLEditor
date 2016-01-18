@@ -50,6 +50,6 @@ public class GLSLVariable{
 
 
     public boolean isInScope(int location){
-        return location > scopeFrom && location < scopeTo;
+        return (location > scopeFrom && location < scopeTo) || (scopeFrom == 0 && scopeTo == 0);
     }
 }

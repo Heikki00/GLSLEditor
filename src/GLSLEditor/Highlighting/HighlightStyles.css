@@ -24,3 +24,7 @@
 .keyword{
  -fx-fill: #2d56ff;
 }
+
+.variable{
+    -fx-fill: #ff6600;
+}

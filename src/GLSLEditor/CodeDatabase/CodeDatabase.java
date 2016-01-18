@@ -11,7 +11,7 @@ public class CodeDatabase {
 
     public static Set<GLSLVariable> defaultVariables;
 
-    public static Set<GLSLType> variableTypes;
+    public static Set<GLSLType> variableTypes, internalTypes;
 
     public static Set<String> variableTypeStrings;
 
@@ -27,12 +27,13 @@ public class CodeDatabase {
         variableTypes = new HashSet<>();
         variableTypeStrings = new HashSet<>();
         GLSLKeywords = new HashSet<>();
-
+        internalTypes = new HashSet<>();
         Collections.addAll(GLSLKeywords, "attribute", "const", "uniform", "varying", "buffer", "shared", "coherent", "volatile", "restrict", "readonly", "writeonly",
                 "centroid", "flat", "smooth", "nonperspective", "patch", "sample", "break", "continue", "do", "for", "while", "switch", "case", "default", "if",
                 "else", "subroutine", "in", "out", "inout", "invariant", "precise", "discard", "return", "struct", "layout", "location");
 
         Collections.addAll(GLSLscalars, "bool", "int", "uint", "float", "double", "void", "atomic_uint");
+
 
 
 
@@ -192,6 +193,7 @@ public class CodeDatabase {
         }
 
 
+       internalTypes.add(new GLSLType("gl_PerVertex", new Pair<GLSLType, String>(getType("vec4"), "gl_Position"), new Pair<GLSLType, String>(getType("float"), "gl_PointSize"), new Pair<GLSLType, String>(getType("float"), "gl_ClipDistance")));
 
         for(GLSLType type : variableTypes){
             variableTypeStrings.add(type.getName());
@@ -199,6 +201,17 @@ public class CodeDatabase {
         }
 
 
+
+
+        Collections.addAll(defaultVariables, new GLSLVariable(getType("int"), "gl_VertexID", 0, 0), new GLSLVariable(getType("int"), "gl_InstanceID", 0, 0),
+                new GLSLVariable(getType("vec4"), "gl_Position", 0, 0), new GLSLVariable(getType("float"), "gl_PointSize", 0, 0), new GLSLVariable(getType("float"), "gl_ClipDistance", 0, 0),
+                new GLSLVariable(getType("int"), "gl_PatchVerticesIn", 0, 0), new GLSLVariable(getType("int"), "gl_PrimitiveID", 0, 0), new GLSLVariable(getType("int"), "gl_InvocationID", 0, 0),
+                new GLSLVariable(getType("float"), "gl_TessLevelOuter", 0, 0),  new GLSLVariable(getType("float"), "gl_TessLevelInner", 0, 0),  new GLSLVariable(getType("vec3"), "gl_TessCoord", 0, 0),
+                new GLSLVariable(getType("gl_PerVertex"), "gl_in", 0, 0), new GLSLVariable(getType("int"), "gl_PrimitiveIDIn", 0, 0), new GLSLVariable(getType("int"), "gl_Layer", 0, 0),
+                new GLSLVariable(getType("int"), "gl_ViewportIndex", 0, 0), new GLSLVariable(getType("vec4"), "gl_FragCoord", 0, 0), new GLSLVariable(getType("bool"), "gl_FrontFacing", 0, 0),
+                new GLSLVariable(getType("vec2"), "gl_PointCoord", 0, 0), new GLSLVariable(getType("int"), "gl_SampleID", 0, 0), new GLSLVariable(getType("vec2"), "gl_SamplePosition", 0, 0),
+                new GLSLVariable(getType("int"), "gl_SampleMaskIn", 0, 0), new GLSLVariable(getType("float"), "gl_FragDepth", 0, 0), new GLSLVariable(getType("int"), "gl_SampleMask", 0, 0)
+                );
 
 
 
@@ -215,7 +228,7 @@ public class CodeDatabase {
 
 
     public static void update(String code){
-
+        Pattern p = Pattern.compile("")
 
 
 
@@ -226,6 +239,11 @@ public class CodeDatabase {
         for(GLSLType t : variableTypes){
             if(t.getName().equals(name)) return t;
         }
+
+        for(GLSLType t : internalTypes){
+            if(t.getName().equals(name)) return t;
+        }
+
         return null;
     }
 

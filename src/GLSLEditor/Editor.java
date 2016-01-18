@@ -299,14 +299,14 @@ public class Editor extends Application{
 
 
 
-        project = new Project(this, projFile.getAbsolutePath().replace("\\", "/"), dir.getAbsolutePath().replace("\\", "/"));
-        shaderBar.updateProject();
-
-        menuSetShaderFile();
+        project = new Project(this, projFile.getAbsolutePath().replace("\\", "/"));
 
 
-
-
+        if(menuSetShaderFile()) {
+            project.setWorkFolder(dir.getAbsolutePath().replace("\\", "/"));
+            shaderBar.updateProject();
+        }
+        else project = null;
     }
 
 
@@ -319,7 +319,7 @@ public class Editor extends Application{
 
        File file =  fileChooser.showOpenDialog(window);
        if(file == null) return;
-       project = new Project(this, file.getAbsolutePath().replace("\\", "/"), "");
+       project = new Project(this, file.getAbsolutePath().replace("\\", "/"));
        shaderBar.updateProject();
 
 
@@ -342,19 +342,19 @@ public class Editor extends Application{
     }
 
     //Sets current projects .shaders file
-    public void menuSetShaderFile(){
-        if(project == null) return;
+    public boolean menuSetShaderFile(){
+        if(project == null) return false;
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select .shaders File");
         fileChooser.setInitialDirectory(new File(getProject().getWorkFolder()));
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Shaders file", "*.shaders"), new FileChooser.ExtensionFilter("Any file", "*.*"));
 
         File file = fileChooser.showOpenDialog(window);
-        if(file == null) return;
+        if(file == null) return false;
 
         project.setShadersFile(file.getAbsolutePath().replace("\\", "/"));
 
-
+        return true;
     }
 
 

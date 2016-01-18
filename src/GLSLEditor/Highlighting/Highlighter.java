@@ -1,6 +1,7 @@
 package GLSLEditor.Highlighting;
 
 import GLSLEditor.CodeDatabase.CodeDatabase;
+import GLSLEditor.CodeDatabase.GLSLVariable;
 import GLSLEditor.Editor;
 import GLSLEditor.Util.Range;
 import org.fxmisc.richtext.StyleSpans;
@@ -19,6 +20,7 @@ public class Highlighter {
     public static void init(Editor editor){
         editor.addStyle("Highlighting/HighlightStyles.css");
         Highlighter.editor = editor;
+
     }
 
     private static String SCALAR_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLscalars) + ")\\b";
@@ -26,22 +28,30 @@ public class Highlighter {
     private static String COMMENT_PATTERN = "(//[^\n]*)|(/\\*.*\\*/)";
     private static String KEYWORD_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLKeywords) + ")\\b";
 
-    private static Pattern PATTERN = Pattern.compile("(?<SCALAR>" + SCALAR_PATTERN + ")"
-            + "|(?<ALGEBRATYPE>" + ALGEBRATYPE_PATTERN + ")"
-            + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
-            + "|(?<KEYWORD>" + KEYWORD_PATTERN + ")"
-
-    , Pattern.DOTALL);
-
 
     private static List<Range> errors = new ArrayList<>();
 
 
 
+
     public static void highlight(String text){
+        ArrayList<String> variableNames = new ArrayList<>();
 
+        for(GLSLVariable v : CodeDatabase.variables){
+            variableNames.add(v.getName());
+        }
 
-        Matcher matcher = PATTERN.matcher(text);
+        for(GLSLVariable v : CodeDatabase.defaultVariables){
+            variableNames.add(v.getName());
+
+        }
+
+        Matcher matcher =  Pattern.compile("(?<SCALAR>" + SCALAR_PATTERN + ")"
+                + "|(?<ALGEBRATYPE>" + ALGEBRATYPE_PATTERN + ")"
+                + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
+                + "|(?<KEYWORD>" + KEYWORD_PATTERN + ")"
+                + "|(?<VARIABLE>" + "\\b(" + String.join("|", variableNames) + ")\\b" + ")"
+                , Pattern.DOTALL).matcher(text);
 
         int lastKwEnd = 0;
         StyleSpansBuilder<Collection<String>> spansBuilder
@@ -52,6 +62,7 @@ public class Highlighter {
                     matcher.group("ALGEBRATYPE") != null ? "algebratype" :
                             matcher.group("COMMENT") != null ? "comment" :
                                     matcher.group("KEYWORD") != null ? "keyword" :
+                                            matcher.group("VARIABLE") != null ? "variable" :
                     "";
 
 

@@ -27,13 +27,13 @@ public class Project {
     private org.fxmisc.undo.UndoManager undoManager;
 
     //Constructs a new Project. Unlike document, project always needs a file.
-    public Project(Editor editor, String filename, String workFolder){
+    public Project(Editor editor, String filename){
         documents = new HashMap<>();
         this.editor = editor;
         own = new Document(filename);
         saved = new SimpleBooleanProperty(false);
 
-        this.workFolder = workFolder;
+
 
 
         Scanner scan = new Scanner(own.getText());
@@ -45,14 +45,16 @@ public class Project {
             saved.setValue(true);
             if(num == 0){
                 String s = scan.nextLine();
-                workFolder = s;
+                this.workFolder = s;
                 System.out.println(workFolder);
+                num++;
                 continue;
             }
 
             else if(num == 1){
                 String s = scan.nextLine();
                 shadersFile = s;
+                num++;
                 continue;
             }
 
@@ -61,14 +63,32 @@ public class Project {
             String s1 = workFolder + s.substring(2);
 
             documents.put(s.substring(0, 2), new Document(s1));
+
+            num++;
+
         }
 
-        num++;
+
     }
 
-    //Sets the .shaders file. Parameter file is a ABSOLUTE path to .shaders file, this function shortens it to relative path.
+    //Sets the .shaders file. Parameter file is a ABSOLUTE path to .shaders file, this function shortens it to relative path. WorkFolder must be set before calling this
     public void setShadersFile(String file){
+        if(workFolder.isEmpty()){
+            throw new IllegalStateException("ERROR: Called setShadersFile() before work folder was set\n");
+
+        }
+
+        if(!file.startsWith(workFolder)){
+            throw new IllegalArgumentException("ERROR: Tried to set .shaders file " + file + " that wasn't under work folder " + workFolder + "\n");
+
+        }
         shadersFile = file.substring(workFolder.length());
+
+    }
+
+    public void setWorkFolder(String path){
+
+        workFolder = path;
 
     }
 
@@ -104,6 +124,7 @@ public class Project {
 
         for(String s : documents.keySet()){
             if(documents.get(s).equals(doc)){
+
                 documents.remove(s);
                 saved.setValue(false);
                 editor.getShaderBar().updateProject();
