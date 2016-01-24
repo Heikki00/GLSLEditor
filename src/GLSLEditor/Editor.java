@@ -301,9 +301,9 @@ public class Editor extends Application{
 
         project = new Project(this, projFile.getAbsolutePath().replace("\\", "/"));
 
-
+        project.setWorkFolder(dir.getAbsolutePath().replace("\\", "/"));
         if(menuSetShaderFile()) {
-            project.setWorkFolder(dir.getAbsolutePath().replace("\\", "/"));
+
             shaderBar.updateProject();
         }
         else project = null;
