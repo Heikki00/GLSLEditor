@@ -35,14 +35,14 @@ public class Highlighter {
 
 
     public static void highlight(String text){
-        ArrayList<String> variableNames = new ArrayList<>();
+        ArrayList<String> variableNames = new ArrayList<>(), defvariableNames = new ArrayList<>();
 
         for(GLSLVariable v : CodeDatabase.variables){
             variableNames.add(v.getName());
         }
 
         for(GLSLVariable v : CodeDatabase.defaultVariables){
-            variableNames.add(v.getName());
+            defvariableNames.add(v.getName());
 
         }
 
@@ -51,6 +51,7 @@ public class Highlighter {
                 + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
                 + "|(?<KEYWORD>" + KEYWORD_PATTERN + ")"
                 + "|(?<VARIABLE>" + "\\b(" + String.join("|", variableNames) + ")\\b" + ")"
+                + "|(?<DEFAULTVARIABLE>" + "\\b(" + String.join("|", defvariableNames) + ")\\b" + ")"
                 , Pattern.DOTALL).matcher(text);
 
         int lastKwEnd = 0;
@@ -63,6 +64,7 @@ public class Highlighter {
                             matcher.group("COMMENT") != null ? "comment" :
                                     matcher.group("KEYWORD") != null ? "keyword" :
                                             matcher.group("VARIABLE") != null ? "variable" :
+                                                    matcher.group("DEFAULTVARIABLE") != null ? "defaultvariable" :
                     "";
 
 

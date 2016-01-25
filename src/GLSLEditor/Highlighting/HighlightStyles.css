@@ -25,6 +25,12 @@
  -fx-fill: #2d56ff;
 }
 
+.defaultvariable{
+    -fx-fill: #cc5200
+}
+
+
+
 .variable{
-    -fx-fill: #ff6600;
+    -fx-fill: #99003d;
 }

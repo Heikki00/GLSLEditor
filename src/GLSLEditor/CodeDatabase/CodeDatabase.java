@@ -1,7 +1,9 @@
 package GLSLEditor.CodeDatabase;
+import GLSLEditor.Highlighting.Highlighter;
 import javafx.util.Pair;
 
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CodeDatabase {
@@ -228,7 +230,30 @@ public class CodeDatabase {
 
 
     public static void update(String code){
-        Pattern p = Pattern.compile("");
+        variables.clear();
+        Pattern p = Pattern.compile("([a-zA-Z_$][\\w$]*)[ \n]+([a-zA-Z_$][\\w]*)(?:[ \n]*|[ \n]*=.*);");
+
+        Matcher m = p.matcher(code);
+
+
+        while(m.find()){
+
+            if(getType(m.group(1)) == null){
+                Highlighter.addError(m.start(), m.end());
+            continue;
+            }
+
+            //If there is no curly brace before variable, set infinite scope
+            int start = m.start();
+            int end = m.end();
+            if(start == -1){
+                start = 0;
+                end = 0;
+            }
+
+            variables.add(new GLSLVariable(getType(m.group(1)), m.group(2), code.lastIndexOf('{', start), code.indexOf('}', end)));
+
+        }
 
 
 

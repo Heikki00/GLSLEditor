@@ -7,9 +7,7 @@ import javafx.scene.layout.HBox;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Heikki on 2.7.2015.
- */
+
 public class FileBar {
 
     private HBox hbox;

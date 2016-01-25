@@ -61,6 +61,7 @@ public class CodeArea {
 
        area.replaceText(editor.getActiveDocument().getText());
        area.setEditable(true);
+       CodeDatabase.update(editor.getActiveDocument().getText());
        Highlighter.highlight(editor.getActiveDocument().getText());
       area.getUndoManager().forgetHistory();
    }

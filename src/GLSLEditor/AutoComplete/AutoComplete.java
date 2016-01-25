@@ -3,6 +3,7 @@ package GLSLEditor.AutoComplete;
 
 import GLSLEditor.CodeDatabase.CodeDatabase;
 import GLSLEditor.CodeDatabase.GLSLType;
+import GLSLEditor.CodeDatabase.GLSLVariable;
 import GLSLEditor.Editor;
 import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.geometry.Side;
@@ -64,9 +65,10 @@ public class AutoComplete {
 
         }
 
+        //If the user typed a character
         if (newVal.charAt(cPos - 1) != ' ' && newVal.charAt(cPos - 1) != '\n') {
 
-
+                //Find first space, or start of the document
                 int spacePos = cPos - 1;
                 while(newVal.charAt(spacePos) != ' '&& newVal.charAt(spacePos) != '\n'){
                     if(spacePos == 0){
@@ -78,7 +80,7 @@ public class AutoComplete {
 
                 }
 
-
+            //What has been typed so far
             String typed = build.substring(spacePos == 0 ? 0 : spacePos + 1, cPos);
 
 
@@ -86,12 +88,17 @@ public class AutoComplete {
 
             contextMenu.getItems().clear();
 
-
-
+                //Variable types(vec3, float, mat3x4 etc.)
                 for(String name : CodeDatabase.variableTypeStrings){
+                    //If it is mat4x4 for example, just skip it
                     if(name.matches("mat\\dx\\d")) continue;
+
+                    //If the name maches
                     if(!typed.isEmpty() && name.startsWith(typed)){
+                        //if it is complete, just continue
                         if(typed.contains(name)) continue;
+
+                        //Create menuitem and set action to replace the text with the name
                         MenuItem m = new MenuItem(name);
                         Integer start = spacePos == 0 ? 0 : spacePos + 1;
                         Integer end = cPos;
@@ -102,11 +109,52 @@ public class AutoComplete {
                 }
 
 
+            //Default variables(gl_Position, gl_in, gl_FragCoord etc.)
+                for(GLSLVariable v : CodeDatabase.defaultVariables){
+                    //If the name maches
+                    if(!typed.isEmpty() && v.getName().startsWith(typed)){
+                        //if it is complete, just continue
+                        if(typed.contains(v.getName())) continue;
+
+                        //Create menuitem and set action to replace the text with the name
+                        MenuItem m = new MenuItem(v.getName());
+                        Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                        Integer end = cPos;
+                        m.setOnAction(e -> codeArea.replaceText(start, end, v.getName()));
+                        contextMenu.getItems().add(m);
+                    }
+
+                }
+
+
+            //Variables(MVP, tangent, i, etc.)
+            for(GLSLVariable v : CodeDatabase.variables){
+
+                //If the name maches
+                if(!typed.isEmpty() && v.getName().startsWith(typed)){
+                    //if it is complete, just continue
+                    if(typed.contains(v.getName())) continue;
+
+                    //If we are not in scope, skip it
+                    if(!v.isInScope(cPos)) continue;
+
+                    //Create menuitem and set action to replace the text with the name
+                    MenuItem m = new MenuItem(v.getName());
+                    Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                    Integer end = cPos;
+                    m.setOnAction(e -> codeArea.replaceText(start, end, v.getName()));
+                    contextMenu.getItems().add(m);
+                }
+
+            }
+
+                //If there is items in there, show the popup
                 if (!codeArea.getPopupWindow().isShowing() && !contextMenu.getItems().isEmpty()){
                     codeArea.getPopupWindow().show(editor.getWindow());
 
                 }
 
+                //if no items, hide the popup
                 if(contextMenu.getItems().isEmpty() || CodeDatabase.getType(typed) != null){
                     contextMenu.hide();
                     contextMenu.getItems().clear();
