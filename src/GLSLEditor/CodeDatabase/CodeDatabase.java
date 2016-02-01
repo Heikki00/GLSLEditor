@@ -1,7 +1,13 @@
 package GLSLEditor.CodeDatabase;
+import GLSLEditor.Editor;
 import GLSLEditor.Highlighting.Highlighter;
 import javafx.util.Pair;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,11 +19,17 @@ public class CodeDatabase {
 
     public static Set<GLSLVariable> defaultVariables;
 
+    public static Set<GLSLFunction> defaultFunctions;
+
     public static Set<GLSLType> variableTypes, internalTypes;
 
     public static Set<String> variableTypeStrings;
 
     public static List<GLSLVariable> variables = new ArrayList<>();
+
+    public static List<GLSLFunction> functions = new ArrayList<>();
+
+
 
     static{
         defaultVariables = new HashSet<>();
@@ -25,6 +37,8 @@ public class CodeDatabase {
         GLSLalgebraTypes = new HashSet<>();
         GLSLvectors = new HashSet<>();
         GLSLMatrices = new HashSet<>();
+        defaultFunctions = new HashSet<>();
+
 
         variableTypes = new HashSet<>();
         variableTypeStrings = new HashSet<>();
@@ -216,6 +230,50 @@ public class CodeDatabase {
                 );
 
 
+        String defaultFunctions = "";
+        try {
+            File file = new File(CodeDatabase.class.getResource("DefaultFunctions").getFile());
+            defaultFunctions = new String(Files.readAllBytes(file.toPath()));
+            defaultFunctions = (defaultFunctions.replace("\r", ""));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+       Pattern p = Pattern.compile("([a-zA-Z_$][\\w$]*)[ \n]+([a-zA-Z_$][\\w]*)[(]([^(;]*)[)][\n]+");
+
+
+       /
+        Matcher m = p.matcher(defaultFunctions);
+
+        while(m.find()){
+
+            String[] parameters = m.group(3).split(",");
+
+            boolean isNew = true;
+            for(GLSLFunction func : CodeDatabase.defaultFunctions){
+                if(func.getName().equals(m.group(0))){
+                    isNew = false;
+                    break;
+                }
+
+            }
+
+
+GLSLFunction f;
+
+            if(isNew)
+                f= new GLSLFunction(getType(m.group(0)), m.group(1));
+            else //Blah
+
+            for(int i = 0; i < parameters.length; i++){
+                parameters[i] = parameters[i].trim();
+            }
+
+
+        }
+
 
 
 
@@ -240,21 +298,42 @@ public class CodeDatabase {
 
             if(getType(m.group(1)) == null){
                 Highlighter.addError(m.start(), m.end());
-            continue;
+                 continue;
             }
 
             //If there is no curly brace before variable, set infinite scope
-            int start = m.start();
-            int end = m.end();
-            if(start == -1){
+            int start = code.lastIndexOf("{", m.start());
+            int end = code.indexOf("}", m.end());
+            if((start == -1 || end == -1) || (code.indexOf("}", start) != end)){
                 start = 0;
                 end = 0;
             }
 
-            variables.add(new GLSLVariable(getType(m.group(1)), m.group(2), code.lastIndexOf('{', start), code.indexOf('}', end)));
+            variables.add(new GLSLVariable(getType(m.group(1)), m.group(2), m.start(), end));
 
         }
 
+
+        //FUNCTIONS:
+
+        p = Pattern.compile("([a-zA-Z_$][\\w$]*)[ \n]+([a-zA-Z_$][\\w]*)[(]([^;]*)[)][ \n]*;");
+
+
+
+        m = p.matcher(code);
+
+
+        while(m.find()){
+
+            if(getType(m.group(1)) == null){
+                Highlighter.addError(m.start(), m.end());
+                continue;
+            }
+
+
+
+
+        }
 
 
     }
