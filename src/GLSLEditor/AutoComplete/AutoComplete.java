@@ -145,7 +145,7 @@ public class AutoComplete {
                     m.setOnAction(e -> codeArea.replaceText(start, end, v.getName()));
                     contextMenu.getItems().add(m);
 
-                    System.out.println(v.getName());
+
                 }
 
             }

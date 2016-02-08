@@ -1,6 +1,7 @@
 package GLSLEditor.Highlighting;
 
 import GLSLEditor.CodeDatabase.CodeDatabase;
+import GLSLEditor.CodeDatabase.GLSLFunction;
 import GLSLEditor.CodeDatabase.GLSLVariable;
 import GLSLEditor.Editor;
 import GLSLEditor.Util.Range;
@@ -35,15 +36,25 @@ public class Highlighter {
 
 
     public static void highlight(String text){
-        ArrayList<String> variableNames = new ArrayList<>(), defvariableNames = new ArrayList<>();
+        ArrayList<String> variableNames = new ArrayList<>(), defvariableNames = new ArrayList<>(), defaultFunctions = new ArrayList<>();
 
         for(GLSLVariable v : CodeDatabase.variables){
             variableNames.add(v.getName());
+
         }
 
         for(GLSLVariable v : CodeDatabase.defaultVariables){
             defvariableNames.add(v.getName());
 
+        }
+
+        for(GLSLFunction f : CodeDatabase.defaultFunctions){
+            defaultFunctions.add(f.getName());
+
+        }
+
+        for(GLSLFunction f : CodeDatabase.functions){
+            defaultFunctions.add(f.getName());
         }
 
         Matcher matcher =  Pattern.compile("(?<SCALAR>" + SCALAR_PATTERN + ")"
@@ -52,6 +63,7 @@ public class Highlighter {
                 + "|(?<KEYWORD>" + KEYWORD_PATTERN + ")"
                 + "|(?<VARIABLE>" + "\\b(" + String.join("|", variableNames) + ")\\b" + ")"
                 + "|(?<DEFAULTVARIABLE>" + "\\b(" + String.join("|", defvariableNames) + ")\\b" + ")"
+                + "|(?<DEFAULTFUNCTION>" + "\\b(" + String.join("|", defaultFunctions) + ")\\b" + ")"
                 , Pattern.DOTALL).matcher(text);
 
         int lastKwEnd = 0;
@@ -65,8 +77,14 @@ public class Highlighter {
                                     matcher.group("KEYWORD") != null ? "keyword" :
                                             matcher.group("VARIABLE") != null ? "variable" :
                                                     matcher.group("DEFAULTVARIABLE") != null ? "defaultvariable" :
+                                                            matcher.group("DEFAULTFUNCTION") != null ? "defaultfunction" :
                     "";
 
+
+            if(styleClass.equals("defaultfunction")){
+
+                System.out.println(matcher.group(0));
+            }
 
             if(styleClass.isEmpty())throw new InputMismatchException("ERROR: Highlight macher found a match that is not part of any group");
 

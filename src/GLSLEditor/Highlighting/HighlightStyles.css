@@ -26,11 +26,15 @@
 }
 
 .defaultvariable{
-    -fx-fill: #cc5200
+    -fx-fill: #cc5200;
 }
-
-
 
 .variable{
     -fx-fill: #99003d;
 }
+
+
+.defaultfunction{
+    -fx-fill: #A949D6;
+}
+
