@@ -35,6 +35,11 @@
 
 
 .defaultfunction{
-    -fx-fill: #A949D6;
+    -fx-fill: #DD0CF0;
 }
+
+.function{
+    -fx-fill: #DE7300;
+}
+
 

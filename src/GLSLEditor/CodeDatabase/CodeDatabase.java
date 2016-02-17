@@ -319,6 +319,9 @@ public class CodeDatabase {
 
     //Updates the variables, functions etc. according to the code
     public static void update(String code){
+
+        //VARIABLES:
+
         //Clear old variables
         variables.clear();
 
@@ -345,12 +348,14 @@ public class CodeDatabase {
             }
 
             //add the variable
-            variables.add(new GLSLVariable(getType(m.group(1)), m.group(2), m.start(), end));
+            variables.add(new GLSLVariable(getType(m.group(1)), m.group(2), start == 0 ? 0 : m.start() , end));
 
         }
 
 
         //FUNCTIONS:
+
+        functions.clear();
 
         //Pattern to find functions
         p = Pattern.compile("([a-zA-Z_$][\\w$]*)[ \n]+([a-zA-Z_$][\\w]*)[(]([^;]*)[)][ \n]*\\{");
@@ -367,6 +372,7 @@ public class CodeDatabase {
 
             GLSLFunction f = null;
 
+            //If the function is new(not a overload), create it. Ether way set the value
             boolean isNew = true;
             for(GLSLFunction func : CodeDatabase.defaultFunctions){
                 if(func.getName().equals(m.group(1))){
@@ -377,33 +383,33 @@ public class CodeDatabase {
 
             }
 
-
-
             if(isNew) {
                 f = new GLSLFunction(getType(m.group(1)), m.group(2));
             }
 
+            //List of parameters
             ArrayList<Pair<GLSLType, String>> paraList = new ArrayList<>();
 
+            //Loop through parameters
             for(int i = 0; i < parameters.length; i++){
+                //Take off the extra spaces
                 parameters[i] = parameters[i].trim();
-
-
                 int spacePos = parameters[i].indexOf(' ');
 
+                //If the format is weird, just skip it. Probably the user is in the middle of writing it
                 if(spacePos == -1) continue;
 
+                //Type and name of the parameter
                 String typeString = parameters[i].substring(0, spacePos);
                 String nameString = parameters[i].substring(typeString.length());
 
                 paraList.add(new Pair<GLSLType, String>(getType(typeString), nameString));
 
             }
-
+            //Add the parameters
             f.addOverload(paraList);
 
-            CodeDatabase.defaultFunctions.add(f);
-
+           functions.add(f);
 
 
         }
@@ -412,6 +418,7 @@ public class CodeDatabase {
     }
 
 
+    //Returns the GLSLType that maches the name. Works for default-, internal- and user defined types. Returns null if the type is not found(something weird or "void")
     public static GLSLType getType(String name){
         for(GLSLType t : variableTypes){
             if(t.getName().equals(name)) return t;

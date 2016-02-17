@@ -14,7 +14,7 @@ import org.fxmisc.richtext.TwoDimensional;
 
 import java.util.*;
 
-
+//Class that represents the editor area. Handles updating everything when the code changes, and might modify the text(replacing tabs etc.)
 public class CodeArea {
     private org.fxmisc.richtext.CodeArea area;
     private Editor editor;
@@ -27,17 +27,21 @@ public class CodeArea {
 
         area.setParagraphGraphicFactory(LineNumberFactory.get(area));
 
-
+        //Listener for the text, called when tehe text is changed
         area.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+            //If there is no active document (shouldn't happen but better be safe)
             if (this.editor.getActiveDocument() == null || this.editor.getActiveDocument().getText().equals(newValue))
                 return;
 
-
+            //Process the text(tabs, autocomplete)
             String text = processText(oldValue, newValue);
+
+            //Update the document's text
             this.editor.getActiveDocument().setText(text);
 
-            //Does not actually call this listener for some reason
+            //Does not actually call this listener for some reason (Jag har inte idea)
             area.replaceText(text);
+
 
             setCaretPos(AutoComplete.getCursorPos());
             Highlighter.highlight(text);
@@ -77,14 +81,14 @@ public class CodeArea {
         return area;
     }
 
-
+    //Sets the style(fonts, colors, etc.) of the area
     public void setStyle(org.fxmisc.richtext.StyleSpans<Collection<String>> styles){
         area.setStyleSpans(0, styles);
 
 
     }
 
-
+    //Little bit hacky, but oh well...
     private void setCaretPos(int pos){
         area.replaceText(0, pos, area.getText(0, pos));
 
@@ -96,8 +100,8 @@ public class CodeArea {
         //Change tab to spaces
         if (newVal.contains("\t")) {
 
-            newVal = newVal.replace("\t", "        ");
-            area.positionCaret(area.getCaretPosition() + 7);
+            newVal = newVal.replace("\t", "    ");
+            area.positionCaret(area.getCaretPosition() + 3);
 
         }
 

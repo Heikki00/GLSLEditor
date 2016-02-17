@@ -19,6 +19,8 @@ import java.util.regex.Pattern;
 /**
  * Created by Heikki on 2.12.2015.
  */
+
+//Hub for everything in the Settings.txt file
 public class Options {
 
         private static Editor editor;
@@ -49,6 +51,8 @@ public class Options {
 
 
                 try {
+
+                    //Reflection magic, lambdas for hotkeys
                     Method met = Editor.class.getDeclaredMethod(m.group(3));
 
                     Hotkeys.setHotkey(m.group(1), new Hotkey(editor, KeyCombination.valueOf(m.group(2)), () -> {
@@ -73,9 +77,10 @@ public class Options {
                 }
 
 
+            //Pattern to find key-value pairs
+                p  = Pattern.compile("([^ \n]+) ([^\n]+)");
 
-                 p  = Pattern.compile("([^ \n]+) ([^\n]+)");
-
+            //Macher to find the default folder
                 m = p.matcher(text.substring(text.indexOf("<defFolder>"), text.indexOf("</defFolder>")));
 
                 while(m.find()){
@@ -100,7 +105,7 @@ public class Options {
 
             }
 
-
+            //Returns a path to the default folder specified in Settings.txt
             public static String getDefaultFolder(){
                 return defaultFolder;
 

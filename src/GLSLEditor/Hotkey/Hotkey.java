@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
+//Class that represents a single hotkey. Consists of a single KeyCombination and a list of callbacks.
+//Should be added to Hotkeys.setHotkey() so all hotkeys can be easily edited
 public class Hotkey {
 
 
@@ -24,6 +25,7 @@ public class Hotkey {
     private List<HotkeyCallback> callbacks;
     private Editor editor;
 
+    //Constructs a Hotkey. kc is the combination that is desired, and after that user can add as many callbacks as they want
     public Hotkey(Editor editor, KeyCombination kc, HotkeyCallback... hcc){
         keyCombination = kc;
 
@@ -34,7 +36,7 @@ public class Hotkey {
 
         }
 
-
+        //Little help from RichTextFX to install the hotkey to the codeArea
         EventHandler<? super KeyEvent> activated = EventHandlerHelper
                 .on(EventPattern.keyPressed(keyCombination)).act(e -> {
                     for (HotkeyCallback call : callbacks) call.onHotkey();
@@ -45,6 +47,7 @@ public class Hotkey {
 
     }
 
+    //Constructs a Hotkey. kc is the combination that is desired.
     public Hotkey(Editor editor,KeyCombination kc){
         keyCombination = kc;
         callbacks = new ArrayList<>();
@@ -63,22 +66,24 @@ public class Hotkey {
 
     }
 
+    //Returns all of the callbacks of this hotkey
     public List<HotkeyCallback> getCallbacks() {
         return callbacks;
     }
 
-
+    //Returns the keyCombination of this hotkey
     public KeyCombination getKeyCombination() {
         return keyCombination;
     }
 
+    //Sets the KeyCombination of this hotkey
     public void setKeyCombination(KeyCombination keyCombination) {
 
         this.keyCombination = keyCombination;
 
     }
 
-
+    //Adds a new callback to this hotkey
     public void addCallback(HotkeyCallback hc){
         callbacks.add(hc);
     }

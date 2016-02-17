@@ -26,8 +26,15 @@ public class Project {
     private final static char SHADERS_DELIMITER = '$';
     private org.fxmisc.undo.UndoManager undoManager;
 
-    //Constructs a new Project. Unlike document, project always needs a file.
+    //Opens a Project from old file. If creating a new Project, use the other constructor
     public Project(Editor editor, String filename){
+       hiddenConstructor(editor, filename);
+
+    }
+
+    //Shared constructor
+    private void hiddenConstructor(Editor editor, String filename){
+
         documents = new HashMap<>();
         this.editor = editor;
         own = new Document(filename);
@@ -68,24 +75,31 @@ public class Project {
 
         }
 
+    }
+
+
+    //Creates a complitely new constructor. Filename is the name of the file(will be whiped), shadersFile is the ABSOLUTE Path to .shaders file.
+    //ShadersFile MUST be under workFolder.
+    public Project(Editor editor, String filename, String workFolder, String shadersFile){
+        this.workFolder = workFolder;
+
+        if(!shadersFile.startsWith(workFolder)){
+            throw new IllegalArgumentException("ERROR: Tried to set .shaders file " + shadersFile + " that wasn't under work folder " + workFolder + "\n");
+
+        }
+        this.shadersFile = shadersFile.substring(workFolder.length());
+
+        Document own = new Document(filename);
+        own.setText("");
+        own.save();
+
+        hiddenConstructor(editor, filename);
 
     }
 
-    //Sets the .shaders file. Parameter file is a ABSOLUTE path to .shaders file, this function shortens it to relative path. WorkFolder must be set before calling this
-    public void setShadersFile(String file){
-        if(workFolder.isEmpty()){
-            throw new IllegalStateException("ERROR: Called setShadersFile() before work folder was set\n");
 
-        }
 
-        if(!file.startsWith(workFolder)){
-            throw new IllegalArgumentException("ERROR: Tried to set .shaders file " + file + " that wasn't under work folder " + workFolder + "\n");
-
-        }
-        shadersFile = file.substring(workFolder.length());
-
-    }
-
+    //Sets the work folder. MUST be called after constructor and after
     public void setWorkFolder(String path){
 
         workFolder = path;
@@ -107,19 +121,20 @@ public class Project {
 
     }
 
-
+    //Returns the document indicated by stage. Returns null if there is no document on specified stage. Accepted values: vs, tc, ts, gs, fs
     public Document getDocument(String stage){
         return documents.get(stage);
 
     }
 
-
+    //Removes the document the from specified stage
     public void removeDocument(String stage){
         documents.remove(stage);
         saved.setValue(false);
         editor.getShaderBar().updateProject();
     }
 
+    //Removes the document doc is it exists in rhis project
     public void removeDocument(Document doc){
 
         for(String s : documents.keySet()){
@@ -136,11 +151,12 @@ public class Project {
 
     }
 
-
+    //Returns true if this project has a document on the specified stage. Accepted values: vs, tc, ts, gs, fs
     public boolean hasDocument(String stage){
         return documents.get(stage) != null;
     }
 
+    //Returns true if this project has the specified document
     public boolean hasDocument(Document doc)
     {
         for(String s : documents.keySet()){
@@ -278,6 +294,19 @@ public class Project {
         saved.setValue(true);
 
     }
+
+    //Returns the parsed text of the specified stage. Returns "" if a document was not found on that stage
+    public String getStageParsed(String stage){
+        Document doc = documents.get(stage);
+        if(doc == null) return "";
+        return parseIncludes(doc.getText());
+    }
+
+    //Returns the parsed text of the specified document.
+    public String getDocumentParsed(Document doc){
+        return parseIncludes(doc.getText());
+    }
+
 
     //Parses the includes of some shader file. Src is full source of the shader, retuns parsed version of that shader.
     private String parseIncludes(String src){

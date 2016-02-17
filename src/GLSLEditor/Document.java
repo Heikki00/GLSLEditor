@@ -69,29 +69,35 @@ public class Document {
 
     }
 
-
+    //Returns true if the document exists and is saved
     public boolean isSaved(){return saved.get(); }
 
     public BooleanProperty getSavedProperty(){return saved;}
 
+    //Returns true if this document exists as a file (e.g. it is not a "New Document")
     public boolean isFile(){return Files.exists(Paths.get(filename.get()));}
 
+    //Returns the file of this document, or null if this document does not exist as a file
     public File getAsFile(){if(!isFile()) return null; return new File(filename.get());}
 
+    //Returns the FILENAME of this document (for example: C:/Users/Heikki/Documents/VS.vs)
     public String getFilename(){
         return filename.get();
     }
 
+    //Sets the filename of this document. Effectively changes the documents file
     public void setFilename(String s){filename.set(s);}
 
     public StringProperty getFilenameProperty(){
         return filename;
     }
 
+    //Return current contents of this document (regardless if the document is saved or not)
     public String getText(){
         return text.getValue();
     }
 
+    //Sets the text of this document
     public void setText(String text){this.text.setValue(text); saved.set(false);}
 
     public StringProperty getTextProperty(){return text;}

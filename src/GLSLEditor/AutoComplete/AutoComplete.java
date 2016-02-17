@@ -138,6 +138,7 @@ public class AutoComplete {
                     //If we are not in scope, skip it
                     if(!v.isInScope(cPos)) continue;
 
+
                     //Create menuitem and set action to replace the text with the name
                     MenuItem m = new MenuItem(v.getName());
                     Integer start = spacePos == 0 ? 0 : spacePos + 1;

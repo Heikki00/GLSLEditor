@@ -267,13 +267,13 @@ public class Editor extends Application{
 
         if(res != JFileChooser.APPROVE_OPTION) return;
 
-        File dir = j.getSelectedFile();
+        File workFolder = j.getSelectedFile();
 
         //Create save dialog, because there is no new dialog, and project always needs a file.
 
 
         j.setDialogTitle("Create project file");
-        j.setCurrentDirectory(new File(dir.getAbsolutePath()));
+        j.setCurrentDirectory(new File(workFolder.getAbsolutePath()));
         j.setFileFilter(new FileNameExtensionFilter("GLSL Project File", "glsl"));
         j.setFileSelectionMode(JFileChooser.FILES_ONLY);
         j.setAcceptAllFileFilterUsed(true);
@@ -288,25 +288,31 @@ public class Editor extends Application{
 
         }
 
+        //Create the file if it doesn't exist
+        if(!projFile.exists()){
+            try {
+                projFile.createNewFile();
+            }
+            catch (java.io.IOException e){
+                e.printStackTrace();
+            }
 
-        //If user chose an existing file, delete and re-create it(so basically replace it)
-        if(projFile.exists()) projFile.delete();
-        try {
-            projFile.createNewFile();
-        } catch (IOException e1) {
-            e1.printStackTrace();
         }
 
+        //.shaders file selection
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select .shaders File");
+        fileChooser.setInitialDirectory(workFolder);
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Shaders file", "*.shaders"), new FileChooser.ExtensionFilter("Any file", "*.*"));
+
+        File shadersFile = fileChooser.showOpenDialog(window);
+        if(shadersFile == null) return;
+
+        project = new Project(this, projFile.getAbsolutePath().replace("\\", "/"), workFolder.getAbsolutePath().replace("\\", "/"),
+                shadersFile.getAbsolutePath().replace("\\", "/"));
 
 
-        project = new Project(this, projFile.getAbsolutePath().replace("\\", "/"));
 
-        project.setWorkFolder(dir.getAbsolutePath().replace("\\", "/"));
-        if(menuSetShaderFile()) {
-
-            shaderBar.updateProject();
-        }
-        else project = null;
     }
 
 
@@ -343,16 +349,6 @@ public class Editor extends Application{
 
     //Sets current projects .shaders file
     public boolean menuSetShaderFile(){
-        if(project == null) return false;
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select .shaders File");
-        fileChooser.setInitialDirectory(new File(getProject().getWorkFolder()));
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Shaders file", "*.shaders"), new FileChooser.ExtensionFilter("Any file", "*.*"));
-
-        File file = fileChooser.showOpenDialog(window);
-        if(file == null) return false;
-
-        project.setShadersFile(file.getAbsolutePath().replace("\\", "/"));
 
         return true;
     }

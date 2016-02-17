@@ -30,7 +30,7 @@ public class ShaderBar {
     private HBox bar;
     private Map<String, Label> labels;
 
-
+    //Constructs the ShaderBar, should be called form Editor. Bar is the JavaFX element in witch the Shaderbar is created
     public ShaderBar(Editor editor, HBox bar){
         this.editor = editor;
         this.bar = bar;
@@ -50,6 +50,7 @@ public class ShaderBar {
         bar.getChildren().add(labels.get("gs"));
         bar.getChildren().add(labels.get("fs"));
 
+        //Loops through the labels
         for(String s : labels.keySet()){
 
             //Initial style
@@ -89,16 +90,18 @@ public class ShaderBar {
 
                     }
 
-                    //
+                    //Don't create a alert etc.
                     return;
                 }
 
-
+                //Create a alert box
                 Alert a = new Alert(Alert.AlertType.CONFIRMATION);
 
+                //Set the alertBox's texts
                 a.setTitle("Add Shader");
                 a.setHeaderText("Do you want to create new file, add currently active file, open file or remove this stage?");
 
+                //Add the buttons
                 ButtonType newFile = new ButtonType("New File");
                 ButtonType openFile = new ButtonType("Open File");
                 ButtonType thisFile = new ButtonType("This File");
@@ -106,9 +109,10 @@ public class ShaderBar {
 
                 a.getButtonTypes().setAll(newFile, openFile, thisFile, cancel);
 
-
+                //Get the result
                 Optional<ButtonType> result = a.showAndWait();
 
+                //
                 if (result.get() == newFile) {
                     FileChooser fileChooser = new FileChooser();
                     fileChooser.setTitle("Create new file");
