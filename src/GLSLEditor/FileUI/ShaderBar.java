@@ -112,8 +112,10 @@ public class ShaderBar {
                 //Get the result
                 Optional<ButtonType> result = a.showAndWait();
 
-                //
+                //If the user wants to create a new file
                 if (result.get() == newFile) {
+
+                    //Show the file chooser and create the file
                     FileChooser fileChooser = new FileChooser();
                     fileChooser.setTitle("Create new file");
                     fileChooser.setInitialDirectory(new File(editor.getProject().getWorkFolder()));
@@ -134,25 +136,37 @@ public class ShaderBar {
 
                     Document doc = new Document(file.getAbsolutePath().replace("\\", "/"));
 
+                    //Add the new file to the filebar and select it
                     FileTab tab = new FileTab(doc, editor);
                     editor.getFileBar().addTab(tab);
                     editor.selectTab(tab);
 
                     editor.getProject().setDocument(s, doc);
 
+                    //Set the style to indicate that the stage exists
                     labels.get(s).setId("ProjectTab_yes");
-                } else if (result.get() == thisFile) {
+                }
+
+                //If the user wants to set this file to the stage
+                else if (result.get() == thisFile) {
+                    //Get the selected document
                     Document doc = editor.getActiveDocument();
                     if (doc == null || !doc.isFile()) return;
 
+                    //If the document is the wrong file type, just return
                     String docPath = doc.getAsFile().getAbsolutePath().replace("\\", "/");
                     if (!docPath.substring(docPath.lastIndexOf('.')).equals("." + s)) return;
 
 
                     editor.getProject().setDocument(s, doc);
 
+                    //Set the style to indicate that the stage exists
                     labels.get(s).setId("ProjectTab_yes");
-                } else if (result.get() == openFile){
+                }
+
+                //If the user wants to open an existing file
+                else if (result.get() == openFile){
+                    //Show the file chooser to open a file
                     FileChooser fileChooser = new FileChooser();
                     fileChooser.setTitle("Open file");
                     fileChooser.setInitialDirectory(new File(editor.getProject().getWorkFolder()));
@@ -165,12 +179,14 @@ public class ShaderBar {
 
                     Document doc = new Document(file.getAbsolutePath().replace("\\", "/"));
 
+                    //Add the document to the filetab and select it
                     FileTab tab = new FileTab(doc, editor);
                     editor.getFileBar().addTab(tab);
                     editor.selectTab(tab);
 
                     editor.getProject().setDocument(s, doc);
 
+                    //Set the style to indicate that the stage exists
                     labels.get(s).setId("ProjectTab_yes");
 
 
@@ -194,9 +210,11 @@ public class ShaderBar {
     }
 
 
-
+    //Updates the ShaderBar(style, mostly), should be called whenever the project is changed or closed
     public void updateProject(){
         Project p = editor.getProject();
+
+        //If the project was closed
         if(p == null){
             labels.get("name").setText("");
             for(String s : labels.keySet()){
@@ -206,10 +224,10 @@ public class ShaderBar {
         }
 
 
-
+        //Set the project's name
         labels.get("name").setText(p.getName());
 
-
+        //Set the styles to indicate the files' existance
         if(!p.hasDocument("vs")) labels.get("vs").setId("ProjectTab_no");
         if(p.hasDocument("vs")) labels.get("vs").setId("ProjectTab_yes");
 
@@ -225,7 +243,7 @@ public class ShaderBar {
         if(!p.hasDocument("fs")) labels.get("fs").setId("ProjectTab_no");
         if(p.hasDocument("fs")) labels.get("fs").setId("ProjectTab_yes");
 
-
+        //Add a listener for the project's saved-property(when the project is changed -> change the style)
         p.getSavedProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) ->{
            labels.get("name").setId(newValue ? "ProjectTab_savedProject" : "ProjectTab_unsavedProject");
 

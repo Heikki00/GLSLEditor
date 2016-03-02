@@ -28,11 +28,21 @@ public class Highlighter {
     private static String ALGEBRATYPE_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLalgebraTypes) + ")\\b";
     private static String COMMENT_PATTERN = "(//[^\n]*)|(/\\*.*\\*/)";
     private static String KEYWORD_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLKeywords) + ")\\b";
-
+    private static String PREPROCESSOR_PATTERN;
 
     private static List<Range> errors = new ArrayList<>();
 
+    static{
+        HashSet<String> set = new HashSet<>();
 
+        for(String s : CodeDatabase.GLSLPreprocessor){
+            set.add("[#]" + s.substring(1));
+
+        }
+
+        PREPROCESSOR_PATTERN = "\\b(" + String.join("|", set) + ")\\b";
+        System.out.println(PREPROCESSOR_PATTERN);
+    }
 
 //TODO: Bug: highlighting only works after first variable
     public static void highlight(String text){
@@ -67,6 +77,7 @@ public class Highlighter {
                 + "|(?<ALGEBRATYPE>" + ALGEBRATYPE_PATTERN + ")"
                 + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
                 + "|(?<KEYWORD>" + KEYWORD_PATTERN + ")"
+                + "|(?<PREPROCESSOR>" + PREPROCESSOR_PATTERN + ")"
                 + "|(?<VARIABLE>" + "\\b(" + String.join("|", variableNames) + ")\\b" + ")"
                 + "|(?<DEFAULTVARIABLE>" + "\\b(" + String.join("|", defvariableNames) + ")\\b" + ")"
                 + "|(?<DEFAULTFUNCTION>" + "\\b(" + String.join("|", defaultFunctions) + ")\\b" + ")"
@@ -85,13 +96,16 @@ public class Highlighter {
                     matcher.group("ALGEBRATYPE") != null ? "algebratype" :
                             matcher.group("COMMENT") != null ? "comment" :
                                     matcher.group("KEYWORD") != null ? "keyword" :
-                                            matcher.group("VARIABLE") != null ? "variable" :
-                                                    matcher.group("DEFAULTVARIABLE") != null ? "defaultvariable" :
+                                            matcher.group("PREPROCESSOR") != null ? "preprocessor" :
+                                                  matcher.group("VARIABLE") != null ? "variable" :
+                                                       matcher.group("DEFAULTVARIABLE") != null ? "defaultvariable" :
                                                             matcher.group("DEFAULTFUNCTION") != null ? "defaultfunction" :
                                                                      matcher.group("FUNCTION") != null ? "function" :
                     "";
 
-
+            if(styleClass.equals("preprocessor")){
+                System.out.println("HA!");
+            }
 
             //If something is found but it wasn't any class
             if(styleClass.isEmpty())throw new InputMismatchException("ERROR: Highlight macher found a match that is not part of any group");
@@ -103,7 +117,7 @@ public class Highlighter {
                 lastKwEnd = matcher.end();
 
         }
-        //Add empt style till' the end!
+        //Add empty style till' the end!
         spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
 
 

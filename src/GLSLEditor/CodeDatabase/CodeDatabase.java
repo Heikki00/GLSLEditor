@@ -14,7 +14,8 @@ import java.util.regex.Pattern;
 
 public class CodeDatabase {
 
-    public static Set<String> GLSLscalars, GLSLalgebraTypes, GLSLvectors, GLSLMatrices, GLSLKeywords;
+    public static Set<String> GLSLscalars, GLSLalgebraTypes, GLSLvectors, GLSLMatrices, GLSLKeywords, GLSLPreprocessor;
+
 
 
     public static Set<GLSLVariable> defaultVariables;
@@ -38,7 +39,7 @@ public class CodeDatabase {
         GLSLvectors = new HashSet<>();
         GLSLMatrices = new HashSet<>();
         defaultFunctions = new HashSet<>();
-
+        GLSLPreprocessor = new HashSet<>();
 
         variableTypes = new HashSet<>();
         variableTypeStrings = new HashSet<>();
@@ -46,11 +47,11 @@ public class CodeDatabase {
         internalTypes = new HashSet<>();
         Collections.addAll(GLSLKeywords, "attribute", "const", "uniform", "varying", "buffer", "shared", "coherent", "volatile", "restrict", "readonly", "writeonly",
                 "centroid", "flat", "smooth", "nonperspective", "patch", "sample", "break", "continue", "do", "for", "while", "switch", "case", "default", "if",
-                "else", "subroutine", "in", "out", "inout", "invariant", "precise", "discard", "return", "struct", "layout", "location");
+                "else", "subroutine", "in", "out", "inout", "invariant", "precise", "discard", "return", "struct", "layout", "location", "([#]foo)");
 
         Collections.addAll(GLSLscalars, "bool", "int", "uint", "float", "double", "void", "atomic_uint");
 
-
+        Collections.addAll(GLSLPreprocessor, "#include", "#version", "#line", "#define", "#undef", "#if", "#ifdef", "#ifndef", "#else", "elif", "#endif");
 
 
         for(int i = 2; i <= 4; ++i){

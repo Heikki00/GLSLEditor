@@ -16,12 +16,12 @@ import java.util.ResourceBundle;
 public class MainLayoutController implements Initializable{
 
     @FXML
-    //public TextArea mainCodeArea;
     public org.fxmisc.richtext.CodeArea mainCodeArea;
     public HBox activeFileBar, shaderBar;
     public MenuItem openMenuItem, saveMenuItem, saveAsMenuItem, closeMenuItem, newMenuItem, optionsMenuItem,
             compileMenuItem, openProjectMenuItem, closeProjectMenuItem, newProjectMenuItem, setShadersFileMenuItem, reloadMenuItem, removeStageMenuItem;
     public SwingNode swingNode;
+    public javafx.scene.control.Menu fileMenu;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {

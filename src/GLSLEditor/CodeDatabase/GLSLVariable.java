@@ -2,15 +2,14 @@ package GLSLEditor.CodeDatabase;
 
 import java.util.List;
 
-/**
- * Created by Heikki on 7.8.2015.
- */
+//Represents a GLSL Variable
 public class GLSLVariable{
     private String name;
     private GLSLType type;
 
     private int scopeFrom, scopeTo;
 
+    //Constructor. If the scopeFrom AND scopeTo == 0, the scope is considered infinite
         public GLSLVariable(GLSLType type, String name, int scopeFrom, int scopeTo) {
             this.type = type;
             this.name = name;

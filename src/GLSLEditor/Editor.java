@@ -26,6 +26,8 @@ import javafx.stage.Stage;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.event.*;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 
@@ -60,7 +62,7 @@ public class Editor extends Application{
         scene = new Scene(root, 800, 600);
         window.setScene(scene);
         javax.swing.JLabel j = new javax.swing.JLabel("");
-        j.setMaximumSize(new Dimension(0,0));
+        j.setMaximumSize(new Dimension(0, 0));
 
         controller.swingNode.setContent(j);
 
@@ -76,6 +78,9 @@ public class Editor extends Application{
         fileBar = new FileBar(controller.activeFileBar, this);
         shaderBar = new ShaderBar(this, controller.shaderBar);
         controller.mainCodeArea.requestFocus();
+
+
+
 
 
         //Init static content. Some might use scene elements, so has to be done after that.
@@ -374,6 +379,15 @@ public class Editor extends Application{
     public void selectTab(FileTab tab){
         fileBar.selectTab(tab);
         codeArea.updateActiveDocument();
+    }
+
+    //Selects the FileTab from FileBar and updates the CodeArea
+    public void removeTab(FileTab tab){
+        fileBar.removeTab(tab);
+
+        if(fileBar.getSelectedTab() == null) getCodeArea().disable();
+        else codeArea.updateActiveDocument();
+
     }
 
     //Returns currently active document, or null if there is no active document
