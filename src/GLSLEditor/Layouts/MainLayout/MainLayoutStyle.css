@@ -1,21 +1,31 @@
 
 
 #FileTab_idle{
-    -fx-background-color: #d6d6d6;
+    -fx-background-image: url("/GLSLEditor/Images/TabIdle.png");
 
 }
 
 
 #FileTab_hover{
-    -fx-background-color: #b9b9b9;
+    -fx-background-image: url("/GLSLEditor/Images/TabHover.png");
 
 }
 
 
 #FileTab_selected{
-    -fx-background-color: #969696;
+    -fx-background-image: url("/GLSLEditor/Images/TabSelected.png");
 
 }
+
+#FileTab_exitidle{
+    -fx-background-image: url("/GLSLEditor/Images/ExitIdle.png");
+
+}
+
+#FileTab_exithover{
+    -fx-background-image: url("/GLSLEditor/Images/ExitHover.png");
+}
+
 
 #FileTabText_saved{
 

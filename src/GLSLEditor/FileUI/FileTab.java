@@ -52,15 +52,28 @@ public class FileTab {
         hbox.getChildren().add(label);
         hbox.getChildren().add(closeButton);
         label.setMinWidth(90);
-        //TODO: Actual icon
-        closeButton.setBackground(new Background(new BackgroundFill(Paint.valueOf("red"), null, null)));
+
+        closeButton.setMinHeight(10);
+        closeButton.setMaxHeight(10);
+        closeButton.setPrefHeight(10);
+        closeButton.setMinWidth(10);
+        closeButton.setMaxWidth(10);
+        closeButton.setPrefWidth(10);
+
+        closeButton.setId("FileTab_exitidle");
+
+        closeButton.setOnMouseEntered(e->{
+            closeButton.setId("FileTab_exithover");
+        });
+
+        closeButton.setOnMouseExited(e->{
+            closeButton.setId("FileTab_exitidle");
+        });
 
         //Lambda to close the tab(requests it from FileBar)
-        closeButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
+        closeButton.setOnAction(e->{
                 editor.removeTab(own);
-            }
+
         });
 
 
@@ -73,20 +86,15 @@ public class FileTab {
         });
 
         //Style stuff
-        label.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
+        label.setOnMouseEntered(e->{
                 if(!selected) hbox.setId("FileTab_hover");
-            }
+
         });
 
         //Style stuff
-        label.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-
+        label.setOnMouseExited(e->{
                 if(!selected) hbox.setId("FileTab_idle");
-            }
+
         });
 
         //Style stuff

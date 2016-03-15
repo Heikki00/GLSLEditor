@@ -71,7 +71,7 @@ public class Editor extends Application{
         addStyle("Layouts/MainLayout/MainLayoutStyle.css");
 
 
-        window.getIcons().add(new Image("file:GLSLEditorIcon.png"));
+        window.getIcons().add(new Image(Editor.class.getResourceAsStream("/GLSLEditor/Images/GLSLEditorIcon.png")));
 
         //Create the elements of main scene
         codeArea = new CodeArea(controller.mainCodeArea, this);
