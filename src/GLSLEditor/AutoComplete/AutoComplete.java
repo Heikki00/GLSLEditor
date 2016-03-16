@@ -2,6 +2,7 @@ package GLSLEditor.AutoComplete;
 
 
 import GLSLEditor.CodeDatabase.CodeDatabase;
+import GLSLEditor.CodeDatabase.GLSLFunction;
 import GLSLEditor.CodeDatabase.GLSLType;
 import GLSLEditor.CodeDatabase.GLSLVariable;
 import GLSLEditor.Editor;
@@ -127,7 +128,7 @@ public class AutoComplete {
                 }
 
 
-            //Variables(MVP, tangent, i, etc.)
+            //User-defined variables(MVP, tangent, i, etc.)
             for(GLSLVariable v : CodeDatabase.variables){
 
                 //If the name maches
@@ -147,6 +148,81 @@ public class AutoComplete {
                     contextMenu.getItems().add(m);
 
 
+                }
+
+            }
+
+            //Default functions (cos, max, smoothstep etc.)
+            for(GLSLFunction f : CodeDatabase.defaultFunctions){
+
+                //If the name maches
+                if(!typed.isEmpty() && f.getName().startsWith(typed)){
+                    //if it is complete, just continue
+                    if(typed.contains(f.getName())) continue;
+
+                    //Create menuitem and set action to replace the text with the name
+                    MenuItem m = new MenuItem(f.getName());
+                    Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                    Integer end = cPos;
+                    m.setOnAction(e -> codeArea.replaceText(start, end, f.getName()));
+                    contextMenu.getItems().add(m);
+
+
+                }
+
+            }
+
+            //User-defined functions (foo, calcLight, displaceCoords etc.)
+            for(GLSLFunction f : CodeDatabase.functions){
+
+                //If the name maches
+                if(!typed.isEmpty() && f.getName().startsWith(typed)){
+                    //if it is complete, just continue
+                    if(typed.contains(f.getName())) continue;
+
+                    //Create menuitem and set action to replace the text with the name
+                    MenuItem m = new MenuItem(f.getName());
+                    Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                    Integer end = cPos;
+                    m.setOnAction(e -> codeArea.replaceText(start, end, f.getName()));
+                    contextMenu.getItems().add(m);
+
+
+                }
+
+            }
+
+            String tillCursor = build.substring(0, cursorPos);
+            if(tillCursor.lastIndexOf("(") > tillCursor.lastIndexOf(")")){
+                int lastEnd = tillCursor.lastIndexOf(";");
+                int lastBrace = tillCursor.lastIndexOf("}") > tillCursor.lastIndexOf("{") ? tillCursor.lastIndexOf("}") : tillCursor.lastIndexOf("{");
+
+                lastEnd = lastEnd > lastBrace ? lastEnd : lastBrace;
+
+                if(tillCursor.lastIndexOf("(") == -1){}
+                else{
+                    if(lastEnd < tillCursor.lastIndexOf("(")){
+                        String s = tillCursor.substring(lastEnd + 1, tillCursor.lastIndexOf("("));
+                        s = s.trim();
+
+                        if(CodeDatabase.getFunction(s) != null){
+                            System.out.println("Function!");
+                        }else{
+
+
+                        }
+
+
+
+
+                    }
+                }
+            }
+
+
+            if(typed.equals("123")){
+                for(GLSLFunction f : CodeDatabase.functions){
+                    System.out.println(f.getName());
                 }
 
             }
@@ -174,7 +250,7 @@ public class AutoComplete {
 
         }else{
             contextMenu.getItems().clear();
-           contextMenu.hide();
+            contextMenu.hide();
             codeArea.requestFocus();
 
         }

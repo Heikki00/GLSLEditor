@@ -28,21 +28,12 @@ public class Highlighter {
     private static String ALGEBRATYPE_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLalgebraTypes) + ")\\b";
     private static String COMMENT_PATTERN = "(//[^\n]*)|(/\\*.*\\*/)";
     private static String KEYWORD_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLKeywords) + ")\\b";
-    private static String PREPROCESSOR_PATTERN;
+    private static String PREPROCESSOR_PATTERN = "[ \n]*(" + String.join("|", CodeDatabase.GLSLPreprocessor) + "\\w+)";
+
 
     private static List<Range> errors = new ArrayList<>();
 
-    static{
-        HashSet<String> set = new HashSet<>();
 
-        for(String s : CodeDatabase.GLSLPreprocessor){
-            set.add("[#]" + s.substring(1));
-
-        }
-
-        PREPROCESSOR_PATTERN = "\\b(" + String.join("|", set) + ")\\b";
-        System.out.println(PREPROCESSOR_PATTERN);
-    }
 
 //TODO: Bug: highlighting only works after first variable
     public static void highlight(String text){
@@ -103,9 +94,8 @@ public class Highlighter {
                                                                      matcher.group("FUNCTION") != null ? "function" :
                     "";
 
-            if(styleClass.equals("preprocessor")){
-                System.out.println("HA!");
-            }
+
+
 
             //If something is found but it wasn't any class
             if(styleClass.isEmpty())throw new InputMismatchException("ERROR: Highlight macher found a match that is not part of any group");

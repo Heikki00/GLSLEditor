@@ -47,7 +47,7 @@ public class CodeDatabase {
         internalTypes = new HashSet<>();
         Collections.addAll(GLSLKeywords, "attribute", "const", "uniform", "varying", "buffer", "shared", "coherent", "volatile", "restrict", "readonly", "writeonly",
                 "centroid", "flat", "smooth", "nonperspective", "patch", "sample", "break", "continue", "do", "for", "while", "switch", "case", "default", "if",
-                "else", "subroutine", "in", "out", "inout", "invariant", "precise", "discard", "return", "struct", "layout", "location", "([#]foo)");
+                "else", "subroutine", "in", "out", "inout", "invariant", "precise", "discard", "return", "struct", "layout", "location");
 
         Collections.addAll(GLSLscalars, "bool", "int", "uint", "float", "double", "void", "atomic_uint");
 
@@ -414,6 +414,7 @@ public class CodeDatabase {
 
 
         }
+        System.out.println(functions.size());
 
 
     }
@@ -432,10 +433,34 @@ public class CodeDatabase {
         return null;
     }
 
+    //Returns the GLSLFunction that maches the name. Works for user-defined and default functions. Returns null if the type is not found
+    public static GLSLFunction getFunction(String name){
+        for(GLSLFunction f : functions){
+            if(f.getName().equals(name)) return f;
+        }
+
+        for(GLSLFunction f : defaultFunctions){
+            if(f.getName().equals(name)) return f;
+        }
+
+        return null;
+    }
+
+    //Returns the GLSLSVariable that maches to the type. Works for user-defined variables and default variables. Returns void if the variable is not found. If there is multiple
+    //variables with the same name, returns the first user-defined one.
+    public static GLSLVariable getVariable(String name){
+        for(GLSLVariable v : variables){
+            if(v.getName().equals(name)) return v;
+        }
+
+        for(GLSLVariable v : defaultVariables) {
+            if (v.getName().equals(name)) return v;
+        }
+
+        return null;
 
 
-
-
+    }
 
 
 

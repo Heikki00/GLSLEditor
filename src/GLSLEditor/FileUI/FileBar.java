@@ -107,6 +107,8 @@ public class FileBar {
 
             }
 
+        if(tabs.size() == 1) selectedTab = null;
+
         //Remove the tab from the list and UI
         hbox.getChildren().remove(tab.toNode());
         tabs.remove(tab);

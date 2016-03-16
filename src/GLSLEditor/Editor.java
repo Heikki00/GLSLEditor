@@ -385,7 +385,11 @@ public class Editor extends Application{
     public void removeTab(FileTab tab){
         fileBar.removeTab(tab);
 
-        if(fileBar.getSelectedTab() == null) getCodeArea().disable();
+        if(fileBar.getSelectedTab() == null){
+            getCodeArea().getArea().replaceText("");
+            getCodeArea().disable();
+
+        }
         else codeArea.updateActiveDocument();
 
     }
