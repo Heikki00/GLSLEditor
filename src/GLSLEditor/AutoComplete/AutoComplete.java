@@ -5,14 +5,28 @@ import GLSLEditor.CodeDatabase.CodeDatabase;
 import GLSLEditor.CodeDatabase.GLSLFunction;
 import GLSLEditor.CodeDatabase.GLSLType;
 import GLSLEditor.CodeDatabase.GLSLVariable;
+import GLSLEditor.Document;
 import GLSLEditor.Editor;
 import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
+import org.fxmisc.richtext.MouseOverTextEvent;
 import org.fxmisc.richtext.PopupAlignment;
 import org.fxmisc.richtext.TwoDimensional;
+
+import javafx.stage.Popup;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AutoComplete {
     private static String completed;
@@ -206,7 +220,7 @@ public class AutoComplete {
                         s = s.trim();
 
                         if(CodeDatabase.getFunction(s) != null){
-                            System.out.println("Function!");
+                            System.out.println(s);
                         }else{
 
 
@@ -278,6 +292,25 @@ public class AutoComplete {
 
         codeArea.setPopupAlignment(PopupAlignment.CARET_BOTTOM);
 
+        Popup pop = new Popup();
+
+        Label popupMsg = new Label();
+        popupMsg.setStyle(
+                "-fx-background-color: black;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 5;");
+        pop.getContent().add(popupMsg);
+
+        codeArea.setMouseOverTextDelay(Duration.ofSeconds(1));
+        codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_BEGIN, e -> {
+            int chIdx = e.getCharacterIndex();
+
+            Point2D pos = e.getScreenPosition();
+            pop.show(codeArea, pos.getX(), pos.getY() + 10);
+        });
+        codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> {
+            pop.hide();
+        });
 
 
     }
@@ -294,6 +327,94 @@ public class AutoComplete {
 
 
 
+    //NOTE: Three parsing functions below are relocated from Project.
+
+    //Returns the parsed text of the specified document. SearchPath is the path from where the included documents should be searched. Should end with "/"
+    public static String getDocumentParsed(Document doc, String searchPath){
+        return parseIncludes(doc.getText(), searchPath);
+    }
+
+
+    //Parses the includes of some file. Src is full source of the file, returns parsed version of that shader.
+    private static String parseIncludes(String src, String path){
+        return parseIncludesRecrusive(src, path, new ArrayList<>());
+
+    }
+
+    //Actually does the include parsing, includedFiles is list of files that are already included, used because this function is recrusive. Should be new List when called from elsewhere.
+    private static String parseIncludesRecrusive(String src, String path, List<String> includedFiles){
+
+
+
+
+        final String INCLUDE_KEY = "#include";
+
+        //While there is include statements
+        while(src.indexOf(INCLUDE_KEY) != -1){
+
+            int keyIndex = src.indexOf(INCLUDE_KEY);
+
+            //Find indexes of quotes
+            int firstQ = src.indexOf("\"", keyIndex);
+            int lastQ = src.indexOf("\"", firstQ + 1);
+
+            StringBuilder sb = new StringBuilder(src);
+
+            if(firstQ == -1 || lastQ == -1){
+
+                sb.replace(keyIndex, keyIndex + INCLUDE_KEY.length(), "");
+                src = sb.toString();
+
+                continue;
+            }
+
+
+            String filename = null;
+            try {
+                filename = src.substring(firstQ + 1, lastQ);
+            } catch (Exception e) {
+                System.out.println("F:" + firstQ + "     L:" + lastQ);
+                e.printStackTrace();
+
+            }
+
+
+            //If file has been already included, remove include statement and skip it
+            if(includedFiles.contains(filename)){
+
+                sb.replace(keyIndex, lastQ + 1, "");
+
+                src = sb.toString();
+                continue;
+            }
+
+
+            String includedText = "";
+
+            //Read the file
+            try {
+                includedText = new String(Files.readAllBytes(Paths.get(path + filename)), StandardCharsets.UTF_8);
+                includedText = includedText.replace("\r", "");
+            } catch (Exception e) {
+                //If the file was not found, just don't care. Maybe the include statent is being written at the moment etc.
+            }
+
+            //Add file to includedFiles and parse it
+            includedFiles.add(filename);
+            includedText = parseIncludesRecrusive(includedText,path, includedFiles);
+
+
+
+            //replace include statement with parsed file
+            sb.replace(keyIndex, lastQ + 1, includedText);
+
+            src = sb.toString();
+
+        }
+
+
+        return src;
+    }
 
 
 

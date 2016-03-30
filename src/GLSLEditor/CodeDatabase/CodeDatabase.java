@@ -1,4 +1,5 @@
 package GLSLEditor.CodeDatabase;
+import GLSLEditor.AutoComplete.AutoComplete;
 import GLSLEditor.Editor;
 import GLSLEditor.Highlighting.Highlighter;
 import javafx.util.Pair;
@@ -14,9 +15,9 @@ import java.util.regex.Pattern;
 
 public class CodeDatabase {
 
+    private static Editor editor;
+
     public static Set<String> GLSLscalars, GLSLalgebraTypes, GLSLvectors, GLSLMatrices, GLSLKeywords, GLSLPreprocessor;
-
-
 
     public static Set<GLSLVariable> defaultVariables;
 
@@ -32,7 +33,9 @@ public class CodeDatabase {
 
 
 
-    static{
+    public static void init(Editor editor){
+        CodeDatabase.editor = editor;
+
         defaultVariables = new HashSet<>();
         GLSLscalars = new HashSet<>();
         GLSLalgebraTypes = new HashSet<>();
@@ -320,6 +323,27 @@ public class CodeDatabase {
 
     //Updates the variables, functions etc. according to the code
     public static void update(String code){
+        boolean wasProjectParsed = false;
+        if(editor.getProject() != null){
+
+            if(editor.getProject().hasDocument(editor.getActiveDocument())) {
+                code = AutoComplete.getDocumentParsed(editor.getActiveDocument(), editor.getProject().getWorkFolder() + "/");
+            wasProjectParsed = true;
+            }
+
+        }
+
+        if(editor.getActiveDocument().isFile() && !wasProjectParsed){
+            String filename = editor.getActiveDocument().getFilename();
+            filename = filename.substring(0, filename.lastIndexOf("/") + 1);
+
+            System.out.println("HE");
+            code = AutoComplete.getDocumentParsed(editor.getActiveDocument(), filename);
+
+
+        }
+
+
 
         //VARIABLES:
 
@@ -414,7 +438,7 @@ public class CodeDatabase {
 
 
         }
-        System.out.println(functions.size());
+
 
 
     }

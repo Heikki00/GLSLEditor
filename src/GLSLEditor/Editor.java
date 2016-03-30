@@ -2,6 +2,7 @@ package GLSLEditor;
 
 
 import GLSLEditor.AutoComplete.AutoComplete;
+import GLSLEditor.CodeDatabase.CodeDatabase;
 import GLSLEditor.FileUI.FileBar;
 import GLSLEditor.FileUI.FileTab;
 import GLSLEditor.FileUI.ShaderBar;
@@ -84,6 +85,7 @@ public class Editor extends Application{
 
 
         //Init static content. Some might use scene elements, so has to be done after that.
+        CodeDatabase.init(this);
         Highlighter.init(this);
         OptionsWindow.init(this);
         AutoComplete.init(this);

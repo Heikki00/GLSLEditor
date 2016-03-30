@@ -1,5 +1,6 @@
 package GLSLEditor;
 
+import GLSLEditor.AutoComplete.AutoComplete;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -215,7 +216,7 @@ public class Project {
 
 
             //Parse the shader
-            String parsedText = parseIncludes(documents.get(s).getText());
+            String parsedText = getStageParsed(s);
 
 
 
@@ -299,78 +300,7 @@ public class Project {
     public String getStageParsed(String stage){
         Document doc = documents.get(stage);
         if(doc == null) return "";
-        return parseIncludes(doc.getText());
-    }
-
-    //Returns the parsed text of the specified document.
-    public String getDocumentParsed(Document doc){
-        return parseIncludes(doc.getText());
-    }
-
-
-    //Parses the includes of some shader file. Src is full source of the shader, retuns parsed version of that shader.
-    private String parseIncludes(String src){
-        return parseIncludesRecrusive(src, new ArrayList<>());
-
-    }
-
-    //Actually does the include parsing, includedFiles is list of files that are already included, used because this function is recrusive. Should be new List when called from elsewhere
-    private String parseIncludesRecrusive(String src, List<String> includedFiles){
-
-
-
-
-        final String INCLUDE_KEY = "#include";
-
-        //While there is include statements
-        while(src.indexOf(INCLUDE_KEY) != -1){
-
-            int keyIndex = src.indexOf(INCLUDE_KEY);
-
-            //Find indexes of quotes
-            int firstQ = src.indexOf("\"", keyIndex);
-            int lastQ = src.indexOf("\"", firstQ + 1);
-
-            String filename = src.substring(firstQ + 1, lastQ);
-
-
-            StringBuilder sb = new StringBuilder(src);
-
-            //If file has been already included, remove include statement and skip it
-            if(includedFiles.contains(filename)){
-
-                sb.replace(keyIndex, lastQ + 1, "");
-
-                src = sb.toString();
-                continue;
-            }
-
-
-            String includedText = "";
-
-            //Read the file
-            try {
-                includedText = new String(Files.readAllBytes(Paths.get(workFolder + filename)), StandardCharsets.UTF_8);
-                includedText = includedText.replace("\r", "");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            //Add file to includedFiles and parse it
-            includedFiles.add(filename);
-            includedText = parseIncludesRecrusive(includedText, includedFiles);
-
-
-
-            //replace include statement with parsed file
-            sb.replace(keyIndex, lastQ + 1, includedText);
-
-            src = sb.toString();
-
-        }
-
-
-        return src;
+        return AutoComplete.getDocumentParsed(doc, workFolder);
     }
 
 
