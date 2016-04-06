@@ -317,7 +317,7 @@ public class Editor extends Application{
 
         project = new Project(this, projFile.getAbsolutePath().replace("\\", "/"), workFolder.getAbsolutePath().replace("\\", "/"),
                 shadersFile.getAbsolutePath().replace("\\", "/"));
-
+        shaderBar.updateProject();
 
 
     }

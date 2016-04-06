@@ -328,7 +328,7 @@ public class CodeDatabase {
 
             if(editor.getProject().hasDocument(editor.getActiveDocument())) {
                 code = AutoComplete.getDocumentParsed(editor.getActiveDocument(), editor.getProject().getWorkFolder() + "/");
-            wasProjectParsed = true;
+                wasProjectParsed = true;
             }
 
         }
@@ -337,7 +337,7 @@ public class CodeDatabase {
             String filename = editor.getActiveDocument().getFilename();
             filename = filename.substring(0, filename.lastIndexOf("/") + 1);
 
-            System.out.println("HE");
+
             code = AutoComplete.getDocumentParsed(editor.getActiveDocument(), filename);
 
 

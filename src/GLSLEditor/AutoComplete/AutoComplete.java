@@ -15,6 +15,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
+import javafx.util.Pair;
 import org.fxmisc.richtext.MouseOverTextEvent;
 import org.fxmisc.richtext.PopupAlignment;
 import org.fxmisc.richtext.TwoDimensional;
@@ -27,6 +28,8 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AutoComplete {
     private static String completed;
@@ -275,6 +278,7 @@ public class AutoComplete {
 
 
         completed = build.toString();
+
     }
 
     public static void init(Editor editor){
@@ -292,6 +296,16 @@ public class AutoComplete {
 
         codeArea.setPopupAlignment(PopupAlignment.CARET_BOTTOM);
 
+        codeArea.caretPositionProperty().addListener(e ->{
+            if(!completed.equals(codeArea.getText())) return;
+            contextMenu.getItems().clear();
+            contextMenu.hide();
+            codeArea.requestFocus();
+
+
+        });
+
+
         Popup pop = new Popup();
 
         Label popupMsg = new Label();
@@ -303,14 +317,79 @@ public class AutoComplete {
 
         codeArea.setMouseOverTextDelay(Duration.ofSeconds(1));
         codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_BEGIN, e -> {
+            //Index of the hover
             int chIdx = e.getCharacterIndex();
+            String code = codeArea.getText();
+            //The space before the word and the space after the word
+            int firstSpace = code.substring(0, chIdx).lastIndexOf(' ');
+            int lastSpace = code.indexOf(' ', chIdx);
 
+            //The line break before the word and the line break after the word
+            int firstLinebr = code.substring(0, chIdx).lastIndexOf('\n');
+            int lastLinebr = code.indexOf('\n', chIdx);
+
+            //If we did not find anything before or after the word, just return
+            if ((firstSpace == -1 && firstLinebr == -1) || (lastSpace == -1 && lastLinebr == -1)) return;
+
+            //Start and end of the word. Chooses between space and \n, avoids -1
+            int wordStart = firstSpace > firstLinebr ? firstSpace : firstLinebr;
+            int wordEnd = lastSpace < lastLinebr ? lastSpace : lastLinebr;
+            if (wordEnd == -1) wordEnd = lastSpace > lastLinebr ? lastSpace : lastLinebr;
+
+            //The word that is hovered upon. NOTE: contains semicolons and braces and all that stuff
+            String word = code.substring(wordStart, wordEnd);
+
+
+            String desc = getHoverString(word);
+
+            popupMsg.setText(desc);
             Point2D pos = e.getScreenPosition();
-            pop.show(codeArea, pos.getX(), pos.getY() + 10);
+            if (!desc.isEmpty()) pop.show(codeArea, pos.getX(), pos.getY() + 10);
         });
         codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> {
             pop.hide();
         });
+
+
+    }
+
+    //Internal function, returns a description that is hovered upon. If this function returns an empty string, the tooltip should not be shown.
+    private static String getHoverString(String word){
+        Pattern p = Pattern.compile("[a-zA-Z0-9_]+");
+
+        Matcher m = p.matcher(word);
+        m.find();
+
+        word = m.group(0);
+
+
+        if(CodeDatabase.getVariable(word) != null){
+            GLSLVariable v = CodeDatabase.getVariable(word);
+            return v.getType().getName() + " " + v.getName();
+
+        }
+
+        else  if(CodeDatabase.getFunction(word) != null){
+            GLSLFunction v = CodeDatabase.getFunction(word);
+            String res = ( v.getReturnType() == null ? "void" : v.getReturnType().getName()) + " " + v.getName() + "(";
+
+           boolean first = true;
+            System.out.println(v.getOverloadAmt());
+            for(Pair<GLSLType, String> par : v.getParameters(0)){
+                if(!first) res += ", ";
+                if(first) first = false;
+
+                res += par.getKey().getName() + par.getValue();
+
+                System.out.println("?");
+            }
+
+            res += ")";
+            return res;
+
+        }
+
+        return "";
 
 
     }

@@ -20,7 +20,7 @@ public class GLSLFunction {
     public GLSLFunction(GLSLType returnType, String name, Pair<GLSLType, String> ... parameters) {
         this.returnType = returnType;
         this.parameters  = new ArrayList<>();
-        this.parameters.add(Arrays.asList(parameters));
+        if(!Arrays.asList(parameters).isEmpty()) this.parameters.add(Arrays.asList(parameters));
         this.name = name;
     }
 
@@ -46,7 +46,7 @@ public class GLSLFunction {
     public void addOverload(Pair<GLSLType, String> ... parameters){
         this.parameters.add(Arrays.asList(parameters));
     }
-    //huehue
+
     public void addOverload(List<Pair<GLSLType, String>> parameters){
         this.parameters.add(parameters);
     }
