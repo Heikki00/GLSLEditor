@@ -14,14 +14,14 @@ public class GLSLType {
     private List<Pair<GLSLType, String>> children;
     private List<GLSLType> arrayTypes;
     private Set<GLSLType> conversions;
-    private List<List<GLSLType>> constructors;
+
 
     public GLSLType(String name, Pair<GLSLType, String> ... children){
         this.children = new ArrayList<>();
         this.name = name;
         arrayTypes = new ArrayList<>();
         conversions = new HashSet<>();
-        constructors = new ArrayList<>();
+
 
         for(Pair<GLSLType, String> child : children){
             this.children.add(child);
@@ -35,8 +35,7 @@ public class GLSLType {
         arrayTypes = new ArrayList<>();
         this.name = name;
         conversions = new HashSet<>();
-        constructors = new ArrayList<>();
-
+        ;
 
     }
 
@@ -76,16 +75,6 @@ public class GLSLType {
     public boolean canConvertTo(GLSLType to){
         return conversions.contains(to);
     }
-
-    public void addConstructor(List<GLSLType> params){
-        constructors.add(params);
-    }
-
-    public List<List<GLSLType>> getConstructors(){
-        return constructors;
-    }
-
-
 
 
 

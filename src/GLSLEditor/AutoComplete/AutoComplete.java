@@ -102,112 +102,8 @@ public class AutoComplete {
             String typed = build.substring(spacePos == 0 ? 0 : spacePos + 1, cPos);
 
 
+            addMenuItems(typed, spacePos, cPos);
 
-
-            contextMenu.getItems().clear();
-
-                //Variable types(vec3, float, mat3x4 etc.)
-                for(String name : CodeDatabase.variableTypeStrings){
-                    //If it is mat4x4 for example, just skip it
-                    if(name.matches("mat\\dx\\d")) continue;
-
-                    //If the name maches
-                    if(!typed.isEmpty() && name.startsWith(typed)){
-                        //if it is complete, just continue
-                        if(typed.contains(name)) continue;
-
-                        //Create menuitem and set action to replace the text with the name
-                        MenuItem m = new MenuItem(name);
-                        Integer start = spacePos == 0 ? 0 : spacePos + 1;
-                        Integer end = cPos;
-                        m.setOnAction(e -> codeArea.replaceText(start, end, name));
-                        contextMenu.getItems().add(m);
-                    }
-
-                }
-
-
-            //Default variables(gl_Position, gl_in, gl_FragCoord etc.)
-                for(GLSLVariable v : CodeDatabase.defaultVariables){
-                    //If the name maches
-                    if(!typed.isEmpty() && v.getName().startsWith(typed)){
-                        //if it is complete, just continue
-                        if(typed.contains(v.getName())) continue;
-
-                        //Create menuitem and set action to replace the text with the name
-                        MenuItem m = new MenuItem(v.getName());
-                        Integer start = spacePos == 0 ? 0 : spacePos + 1;
-                        Integer end = cPos;
-                        m.setOnAction(e -> codeArea.replaceText(start, end, v.getName()));
-                        contextMenu.getItems().add(m);
-                    }
-
-                }
-
-
-            //User-defined variables(MVP, tangent, i, etc.)
-            for(GLSLVariable v : CodeDatabase.variables){
-
-                //If the name maches
-                if(!typed.isEmpty() && v.getName().startsWith(typed)){
-                    //if it is complete, just continue
-                    if(typed.contains(v.getName())) continue;
-
-                    //If we are not in scope, skip it
-                    if(!v.isInScope(cPos)) continue;
-
-
-                    //Create menuitem and set action to replace the text with the name
-                    MenuItem m = new MenuItem(v.getName());
-                    Integer start = spacePos == 0 ? 0 : spacePos + 1;
-                    Integer end = cPos;
-                    m.setOnAction(e -> codeArea.replaceText(start, end, v.getName()));
-                    contextMenu.getItems().add(m);
-
-
-                }
-
-            }
-
-            //Default functions (cos, max, smoothstep etc.)
-            for(GLSLFunction f : CodeDatabase.defaultFunctions){
-
-                //If the name maches
-                if(!typed.isEmpty() && f.getName().startsWith(typed)){
-                    //if it is complete, just continue
-                    if(typed.contains(f.getName())) continue;
-
-                    //Create menuitem and set action to replace the text with the name
-                    MenuItem m = new MenuItem(f.getName());
-                    Integer start = spacePos == 0 ? 0 : spacePos + 1;
-                    Integer end = cPos;
-                    m.setOnAction(e -> codeArea.replaceText(start, end, f.getName()));
-                    contextMenu.getItems().add(m);
-
-
-                }
-
-            }
-
-            //User-defined functions (foo, calcLight, displaceCoords etc.)
-            for(GLSLFunction f : CodeDatabase.functions){
-
-                //If the name maches
-                if(!typed.isEmpty() && f.getName().startsWith(typed)){
-                    //if it is complete, just continue
-                    if(typed.contains(f.getName())) continue;
-
-                    //Create menuitem and set action to replace the text with the name
-                    MenuItem m = new MenuItem(f.getName());
-                    Integer start = spacePos == 0 ? 0 : spacePos + 1;
-                    Integer end = cPos;
-                    m.setOnAction(e -> codeArea.replaceText(start, end, f.getName()));
-                    contextMenu.getItems().add(m);
-
-
-                }
-
-            }
 
             String tillCursor = build.substring(0, cursorPos);
             if(tillCursor.lastIndexOf("(") > tillCursor.lastIndexOf(")")){
@@ -224,40 +120,15 @@ public class AutoComplete {
 
                         if(CodeDatabase.getFunction(s) != null){
                             System.out.println(s);
-                        }else{
-
-
                         }
-
-
-
-
                     }
                 }
             }
 
 
-            if(typed.equals("123")){
-                for(GLSLFunction f : CodeDatabase.functions){
-                    System.out.println(f.getName());
-                }
-
-            }
-
-                //If there is items in there, show the popup
-                if (!codeArea.getPopupWindow().isShowing() && !contextMenu.getItems().isEmpty()){
-                    codeArea.getPopupWindow().show(editor.getWindow());
-
-                }
-
-                //if no items, hide the popup
-                if(contextMenu.getItems().isEmpty() || CodeDatabase.getType(typed) != null){
-                    contextMenu.hide();
-                    contextMenu.getItems().clear();
-                    codeArea.requestFocus();
 
 
-                }
+
 
 
 
@@ -340,12 +211,28 @@ public class AutoComplete {
             String word = code.substring(wordStart, wordEnd);
 
 
+            //Find the actual words from the block of characters(eg. "foo(MVP,")
+            Pattern p = Pattern.compile("[a-zA-Z0-9_]+");
+            Matcher m = p.matcher(word);
+
+
+            while (m.find()){
+                //Is the cursor in the found word?
+                if(chIdx >= wordStart + m.start() && chIdx < wordStart + m.end()){
+                    word = m.group(0);
+                }
+
+            }
+
+            //Get the description for the word
             String desc = getHoverString(word);
 
             popupMsg.setText(desc);
             Point2D pos = e.getScreenPosition();
+            //Show the tooltip, if the description is not empty
             if (!desc.isEmpty()) pop.show(codeArea, pos.getX(), pos.getY() + 10);
         });
+
         codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> {
             pop.hide();
         });
@@ -355,33 +242,29 @@ public class AutoComplete {
 
     //Internal function, returns a description that is hovered upon. If this function returns an empty string, the tooltip should not be shown.
     private static String getHoverString(String word){
-        Pattern p = Pattern.compile("[a-zA-Z0-9_]+");
-
-        Matcher m = p.matcher(word);
-        m.find();
-
-        word = m.group(0);
 
 
+        //If the word is variable, show the type and the name
         if(CodeDatabase.getVariable(word) != null){
             GLSLVariable v = CodeDatabase.getVariable(word);
             return v.getType().getName() + " " + v.getName();
 
         }
 
+        //If the word is function, show return type, name, parameter typas and names
         else  if(CodeDatabase.getFunction(word) != null){
             GLSLFunction v = CodeDatabase.getFunction(word);
             String res = ( v.getReturnType() == null ? "void" : v.getReturnType().getName()) + " " + v.getName() + "(";
 
+            //Add the parameters to the result
            boolean first = true;
-            System.out.println(v.getOverloadAmt());
-            for(Pair<GLSLType, String> par : v.getParameters(0)){
+        for(Pair<GLSLType, String> par : v.getParameters(0)){
                 if(!first) res += ", ";
                 if(first) first = false;
 
                 res += par.getKey().getName() + par.getValue();
 
-                System.out.println("?");
+
             }
 
             res += ")";
@@ -389,8 +272,158 @@ public class AutoComplete {
 
         }
 
+
+        //Looks better
+        else if(CodeDatabase.getType(word) != null){
+           return CodeDatabase.getType(word).getName();
+
+        }
+
         return "";
 
+
+    }
+
+    //Internal function, adds all items to the contex menu.
+    private static void addMenuItems(String typed, int spacePos, int cPos){
+
+        contextMenu.getItems().clear();
+
+        //Default variable types(vec3, float, mat3x4 etc.)
+        for(GLSLType t : CodeDatabase.variableTypes){
+            //If it is mat4x4 for example, just skip it
+            if(t.getName().matches("mat\\dx\\d")) continue;
+
+            //If the name maches
+            if(!typed.isEmpty() && t.getName().startsWith(typed)){
+                //if it is complete, just continue
+                if(typed.contains(t.getName())) continue;
+
+                //Create menuitem and set action to replace the text with the name
+                MenuItem m = new MenuItem(t.getName());
+                Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                Integer end = cPos;
+                m.setOnAction(e -> codeArea.replaceText(start, end, t.getName()));
+                contextMenu.getItems().add(m);
+            }
+
+        }
+
+        //User-defined types(Baselight, PointLight)
+        for(GLSLType t : CodeDatabase.userTypes){
+
+            //If the name maches
+            if(!typed.isEmpty() && t.getName().startsWith(typed)){
+                //if it is complete, just continue
+                if(typed.contains(t.getName())) continue;
+
+                //Create menuitem and set action to replace the text with the name
+                MenuItem m = new MenuItem(t.getName());
+                Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                Integer end = cPos;
+                m.setOnAction(e -> codeArea.replaceText(start, end, t.getName()));
+                contextMenu.getItems().add(m);
+            }
+
+        }
+
+
+        //Default variables(gl_Position, gl_in, gl_FragCoord etc.)
+        for(GLSLVariable v : CodeDatabase.defaultVariables){
+            //If the name maches
+            if(!typed.isEmpty() && v.getName().startsWith(typed)){
+                //if it is complete, just continue
+                if(typed.contains(v.getName())) continue;
+
+                //Create menuitem and set action to replace the text with the name
+                MenuItem m = new MenuItem(v.getName());
+                Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                Integer end = cPos;
+                m.setOnAction(e -> codeArea.replaceText(start, end, v.getName()));
+                contextMenu.getItems().add(m);
+            }
+
+        }
+
+
+        //User-defined variables(MVP, tangent, i, etc.)
+        for(GLSLVariable v : CodeDatabase.variables){
+
+            //If the name maches
+            if(!typed.isEmpty() && v.getName().startsWith(typed)){
+                //if it is complete, just continue
+                if(typed.contains(v.getName())) continue;
+
+                //If we are not in scope, skip it
+                if(!v.isInScope(cPos)) continue;
+
+
+                //Create menuitem and set action to replace the text with the name
+                MenuItem m = new MenuItem(v.getName());
+                Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                Integer end = cPos;
+                m.setOnAction(e -> codeArea.replaceText(start, end, v.getName()));
+                contextMenu.getItems().add(m);
+
+
+            }
+
+        }
+
+        //Default functions (cos, max, smoothstep etc.)
+        for(GLSLFunction f : CodeDatabase.defaultFunctions){
+
+            //If the name maches
+            if(!typed.isEmpty() && f.getName().startsWith(typed)){
+                //if it is complete, just continue
+                if(typed.contains(f.getName())) continue;
+
+                //Create menuitem and set action to replace the text with the name
+                MenuItem m = new MenuItem(f.getName());
+                Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                Integer end = cPos;
+                m.setOnAction(e -> codeArea.replaceText(start, end, f.getName()));
+                contextMenu.getItems().add(m);
+
+
+            }
+
+        }
+
+        //User-defined functions (foo, calcLight, displaceCoords etc.)
+        for(GLSLFunction f : CodeDatabase.functions){
+
+            //If the name maches
+            if(!typed.isEmpty() && f.getName().startsWith(typed)){
+                //if it is complete, just continue
+                if(typed.contains(f.getName())) continue;
+
+                //Create menuitem and set action to replace the text with the name
+                MenuItem m = new MenuItem(f.getName());
+                Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                Integer end = cPos;
+                m.setOnAction(e -> codeArea.replaceText(start, end, f.getName()));
+                contextMenu.getItems().add(m);
+
+
+            }
+
+        }
+
+        //If there is items in there, show the popup
+        if (!codeArea.getPopupWindow().isShowing() && !contextMenu.getItems().isEmpty()){
+            codeArea.getPopupWindow().show(editor.getWindow());
+
+        }
+
+        //if no items, hide the popup
+        if(contextMenu.getItems().isEmpty() || CodeDatabase.getType(typed) != null){
+            contextMenu.hide();
+            contextMenu.getItems().clear();
+            codeArea.requestFocus();
+
+
+        }
 
     }
 

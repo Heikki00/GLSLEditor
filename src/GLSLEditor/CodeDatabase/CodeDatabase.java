@@ -23,7 +23,7 @@ public class CodeDatabase {
 
     public static Set<GLSLFunction> defaultFunctions;
 
-    public static Set<GLSLType> variableTypes, internalTypes;
+    public static Set<GLSLType> variableTypes, internalTypes, userTypes;
 
     public static Set<String> variableTypeStrings;
 
@@ -45,6 +45,7 @@ public class CodeDatabase {
         GLSLPreprocessor = new HashSet<>();
 
         variableTypes = new HashSet<>();
+        userTypes = new HashSet<>();
         variableTypeStrings = new HashSet<>();
         GLSLKeywords = new HashSet<>();
         internalTypes = new HashSet<>();
@@ -83,13 +84,7 @@ public class CodeDatabase {
             variableTypes.add(f);
             variableTypes.add(d);
 
-            for (GLSLType t : variableTypes) {
-                t.addConstructor(new ArrayList<>(Collections.singleton(b)));
-                t.addConstructor(new ArrayList<>(Collections.singleton(i)));
-                t.addConstructor(new ArrayList<>(Collections.singleton(ui)));
-                t.addConstructor(new ArrayList<>(Collections.singleton(f)));
-                t.addConstructor(new ArrayList<>(Collections.singleton(d)));
-            }
+
 
 
             f.addConversion(i);
@@ -437,15 +432,49 @@ public class CodeDatabase {
            functions.add(f);
 
 
+
+
         }
 
 
+
+        //STRUCTS
+
+        userTypes.clear();
+        p = Pattern.compile("struct[ \n]+(\\w+)[ \n]*[{]([^}]*)[}][ \n]*;");
+
+        m = p.matcher(code);
+
+        while(m.find()){
+
+            Pattern varPat = Pattern.compile("([a-zA-Z_$][\\w$]*)[ \n]+([a-zA-Z_$][\\w]*)(?:[ \n]*|[ \n]*=.*);");
+
+            Matcher varMat = varPat.matcher(m.group(2));
+
+            GLSLType t = new GLSLType(m.group(1));
+
+            while(varMat.find()){
+                variables.remove(getVariable(varMat.group(2)));
+                GLSLType childType = getType(varMat.group(1));
+
+                if(childType != null) continue;
+
+                t.addChild(new Pair<GLSLType, String>(childType, varMat.group(2)));
+
+            }
+
+        userTypes.add(t);
+        }
 
     }
 
 
     //Returns the GLSLType that maches the name. Works for default-, internal- and user defined types. Returns null if the type is not found(something weird or "void")
     public static GLSLType getType(String name){
+        for(GLSLType t : userTypes){
+            if(t.getName().equals(name)) return t;
+        }
+
         for(GLSLType t : variableTypes){
             if(t.getName().equals(name)) return t;
         }

@@ -2,6 +2,7 @@ package GLSLEditor.Highlighting;
 
 import GLSLEditor.CodeDatabase.CodeDatabase;
 import GLSLEditor.CodeDatabase.GLSLFunction;
+import GLSLEditor.CodeDatabase.GLSLType;
 import GLSLEditor.CodeDatabase.GLSLVariable;
 import GLSLEditor.Editor;
 import GLSLEditor.Util.Range;
@@ -38,7 +39,7 @@ public class Highlighter {
 //TODO: Bug: highlighting only works after first variable
     public static void highlight(String text){
         //Lists that contain the names that should be highlighted
-        ArrayList<String> variableNames = new ArrayList<>(), defvariableNames = new ArrayList<>(), defaultFunctions = new ArrayList<>(), functions = new ArrayList<>();
+        ArrayList<String> variableNames = new ArrayList<>(), defvariableNames = new ArrayList<>(), defaultFunctions = new ArrayList<>(), functions = new ArrayList<>(), userTypes = new ArrayList<>();
 
         //User-defined variable names
         for(GLSLVariable v : CodeDatabase.variables){
@@ -63,6 +64,11 @@ public class Highlighter {
             functions.add(f.getName());
         }
 
+        //User-defined types
+        for(GLSLType t : CodeDatabase.userTypes){
+            userTypes.add(t.getName());
+        }
+
         //Create the matcher from pattern
         Matcher matcher =  Pattern.compile("(?<SCALAR>" + SCALAR_PATTERN + ")"
                 + "|(?<ALGEBRATYPE>" + ALGEBRATYPE_PATTERN + ")"
@@ -73,6 +79,7 @@ public class Highlighter {
                 + "|(?<DEFAULTVARIABLE>" + "\\b(" + String.join("|", defvariableNames) + ")\\b" + ")"
                 + "|(?<DEFAULTFUNCTION>" + "\\b(" + String.join("|", defaultFunctions) + ")\\b" + ")"
                 + "|(?<FUNCTION>" + "\\b(" + String.join("|", functions) + ")\\b" + ")"
+                + "|(?<USERTYPES>" + "\\b(" + String.join("|", userTypes) + ")\\b" + ")"
                 , Pattern.DOTALL).matcher(text);
 
         //lastKwEnd is the end of the latest highlighted area
@@ -92,6 +99,7 @@ public class Highlighter {
                                                        matcher.group("DEFAULTVARIABLE") != null ? "defaultvariable" :
                                                             matcher.group("DEFAULTFUNCTION") != null ? "defaultfunction" :
                                                                      matcher.group("FUNCTION") != null ? "function" :
+                                                                             matcher.group("USERTYPES") != null ? "usertypes" :
                     "";
 
 
