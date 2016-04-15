@@ -447,12 +447,12 @@ public class CodeDatabase {
 
         while(m.find()){
 
-            Pattern varPat = Pattern.compile("([a-zA-Z_$][\\w$]*)[ \n]+([a-zA-Z_$][\\w]*)(?:[ \n]*|[ \n]*=.*);");
+            Pattern varPat = Pattern.compile("([\\w])[ \n]+([\\w])[ \n]*;");
 
             Matcher varMat = varPat.matcher(m.group(2));
 
             GLSLType t = new GLSLType(m.group(1));
-
+            
             while(varMat.find()){
                 variables.remove(getVariable(varMat.group(2)));
                 GLSLType childType = getType(varMat.group(1));
@@ -460,7 +460,7 @@ public class CodeDatabase {
                 if(childType != null) continue;
 
                 t.addChild(new Pair<GLSLType, String>(childType, varMat.group(2)));
-
+                System.out.println(childType + " " + varMat.group(2));
             }
 
         userTypes.add(t);

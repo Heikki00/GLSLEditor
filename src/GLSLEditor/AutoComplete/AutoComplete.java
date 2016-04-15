@@ -8,6 +8,13 @@ import GLSLEditor.CodeDatabase.GLSLVariable;
 import GLSLEditor.Document;
 import GLSLEditor.Editor;
 import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.Node;
@@ -54,32 +61,7 @@ public class AutoComplete {
 
         //If only one character is inputted
         if(oldVal.length() + 1 == newVal.length()) {
-
-            char open[] = {'(', '{', '['};
-            char close[] = {')', '}', ']'};
-
-            //Loop through autocomplitable characters
-            for(int i = 0; i < 3; ++i){
-
-                //If the opening char was the input and the last charater, just add the closing char
-                if(build.charAt(cursorPos - 1) == open[i] && cursorPos == build.length()) build.insert(cursorPos, close[i]);
-
-                //If opening char was inputted
-                if (build.charAt(cursorPos - 1) == open[i])
-                    //If char after opening is space, line end or any other permitted character
-                    if (build.charAt(cursorPos) == ' ' || build.charAt(cursorPos) == '\n' ||
-                            build.charAt(cursorPos) == close[i == 0 ? 1 : i == 1 ? 2 : 0] || build.charAt(cursorPos) == close[i == 0 ? 2 : i == 1 ? 0 : 1] ||
-                            build.charAt(cursorPos) == open[i == 0 ? 1 : i == 1 ? 2 : 0] || build.charAt(cursorPos) == open[i == 0 ? 2 : i == 1 ? 0 : 1])
-                                     build.insert(cursorPos, close[i]);
-
-
-
-
-
-            }
-
-
-
+            completeBracesEtc(build);
 
         }
 
@@ -159,6 +141,7 @@ public class AutoComplete {
         completed = "";
         contextMenu = new ContextMenu();
 
+
         codeArea = editor.getCodeArea().getArea();
 
 
@@ -167,15 +150,25 @@ public class AutoComplete {
 
         codeArea.setPopupAlignment(PopupAlignment.CARET_BOTTOM);
 
-        codeArea.caretPositionProperty().addListener(e ->{
-            if(!completed.equals(codeArea.getText())) return;
+
+        //Really hacky, but seems to work alright...
+        IntegerProperty changed = new SimpleIntegerProperty(0);
+        codeArea.textProperty().addListener(e ->{
+
+            changed.setValue(2);
+        });
+        codeArea.caretPositionProperty().addListener(e -> {
+            if (changed.get() != 0){
+                changed.setValue(changed.get() - 1);
+                return;
+            }
+
             contextMenu.getItems().clear();
             contextMenu.hide();
             codeArea.requestFocus();
 
 
         });
-
 
         Popup pop = new Popup();
 
@@ -325,7 +318,10 @@ public class AutoComplete {
                 contextMenu.getItems().add(m);
             }
 
+
         }
+
+
 
 
         //Default variables(gl_Position, gl_in, gl_FragCoord etc.)
@@ -410,9 +406,41 @@ public class AutoComplete {
 
         }
 
+        //Child variable autocompletion
+        if(!typed.isEmpty() && typed.contains(".")){
+            String beforeDot = typed.substring(0, typed.indexOf('.'));
+            String afterDot = typed.substring(typed.indexOf('.') + 1);
+
+            for(GLSLVariable v : CodeDatabase.defaultVariables){
+                if(beforeDot.equals(v.getName())){
+                    for(Pair<GLSLType, String> p : v.getType().getChildren()){
+                        MenuItem m = new MenuItem(p.getValue());
+                        contextMenu.getItems().add(m);
+                    }
+                }
+            }
+
+            for(GLSLVariable v : CodeDatabase.variables){
+                if(beforeDot.equals(v.getName())){
+                    //System.out.println(v.getType().getChildren().size());
+                    for(Pair<GLSLType, String> p : v.getType().getChildren()){
+
+                       if(p.getValue().startsWith(afterDot)) {
+                           MenuItem m = new MenuItem(p.getValue());
+
+                           m.setOnAction(e -> codeArea.replaceText(spacePos + typed.indexOf('.') + 2, cPos, p.getValue()));
+                           contextMenu.getItems().add(m);
+                       }
+                    }
+                }
+            }
+        }
+
+
         //If there is items in there, show the popup
         if (!codeArea.getPopupWindow().isShowing() && !contextMenu.getItems().isEmpty()){
             codeArea.getPopupWindow().show(editor.getWindow());
+
 
         }
 
@@ -424,6 +452,34 @@ public class AutoComplete {
 
 
         }
+
+    }
+
+    private static void completeBracesEtc(StringBuilder build){
+        char open[] = {'(', '{', '['};
+        char close[] = {')', '}', ']'};
+
+        //Loop through autocomplitable characters
+        for(int i = 0; i < 3; ++i){
+
+            //If the opening char was the input and the last charater, just add the closing char
+            if(build.charAt(cursorPos - 1) == open[i] && cursorPos == build.length()) build.insert(cursorPos, close[i]);
+
+            //If opening char was inputted
+            if (build.charAt(cursorPos - 1) == open[i])
+                //If char after opening is space, line end or any other permitted character
+                if (build.charAt(cursorPos) == ' ' || build.charAt(cursorPos) == '\n' ||
+                        build.charAt(cursorPos) == close[i == 0 ? 1 : i == 1 ? 2 : 0] || build.charAt(cursorPos) == close[i == 0 ? 2 : i == 1 ? 0 : 1] ||
+                        build.charAt(cursorPos) == open[i == 0 ? 1 : i == 1 ? 2 : 0] || build.charAt(cursorPos) == open[i == 0 ? 2 : i == 1 ? 0 : 1])
+                    build.insert(cursorPos, close[i]);
+
+
+
+
+
+        }
+
+
 
     }
 
