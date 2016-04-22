@@ -49,15 +49,19 @@ public class CodeDatabase {
         variableTypeStrings = new HashSet<>();
         GLSLKeywords = new HashSet<>();
         internalTypes = new HashSet<>();
+
+        //Add the basic keywords from GLSL 430
         Collections.addAll(GLSLKeywords, "attribute", "const", "uniform", "varying", "buffer", "shared", "coherent", "volatile", "restrict", "readonly", "writeonly",
                 "centroid", "flat", "smooth", "nonperspective", "patch", "sample", "break", "continue", "do", "for", "while", "switch", "case", "default", "if",
                 "else", "subroutine", "in", "out", "inout", "invariant", "precise", "discard", "return", "struct", "layout", "location");
 
+        //Add the basic scalar types
         Collections.addAll(GLSLscalars, "bool", "int", "uint", "float", "double", "void", "atomic_uint");
 
+        //Add the basic preprocessor commands
         Collections.addAll(GLSLPreprocessor, "#include", "#version", "#line", "#define", "#undef", "#if", "#ifdef", "#ifndef", "#else", "elif", "#endif");
 
-
+        //Add matrices and vectors of all dimensions and data types
         for(int i = 2; i <= 4; ++i){
             Collections.addAll(GLSLvectors, "bvec" + i, "ivec" + i, "uvec" + i, "vec" + i, "dvec" + i);
 
@@ -76,7 +80,7 @@ public class CodeDatabase {
 
         //SCALARS
         {
-
+            //GLSLTypes for basic scalars
             GLSLType b = new GLSLType("bool"), i = new GLSLType("int"), ui = new GLSLType("uint"), f = new GLSLType("float"), d = new GLSLType("double");
             variableTypes.add(b);
             variableTypes.add(i);
@@ -84,9 +88,7 @@ public class CodeDatabase {
             variableTypes.add(f);
             variableTypes.add(d);
 
-
-
-
+            //What can convert to what?
             f.addConversion(i);
             f.addConversion(ui);
             f.addConversion(d);
@@ -118,9 +120,10 @@ public class CodeDatabase {
             String[] v4 = {"vec4", "ivec4", "uvec4", "dvec4", "bvec4"};
             String[] types = {"float", "int", "uint", "double", "bool"};
 
-
+            //Internal utility class to generate children for vectors
             class Swizzler{
 
+                //Internal, recrusive function
                 private void genStrings(char[] arr, List<String> res, int lenght, String current){
                     if(current.length() == lenght - 1){
                         for(char c : arr){
@@ -142,6 +145,7 @@ public class CodeDatabase {
 
                 }
 
+                //A function that takes an array of chars and a maximum length, and returns all possible combinations of those chars that are shorter or as long as the maxLenght
                 public List<String> getStrings(char[] chars, int maxLenght){
                     List<String> res = new ArrayList<>();
                     for(int i = 1; i <= maxLenght; ++i){
@@ -153,6 +157,7 @@ public class CodeDatabase {
 
             }
 
+            //Add children for vec2
             char[] arr2 = {'x', 'y'};
             List<String> children = new Swizzler().getStrings(arr2, 4);
             for(int i = 0; i < 5; ++i){
@@ -162,7 +167,7 @@ public class CodeDatabase {
                 }
 
             }
-
+            //Add children for vec3
             char[] arr3 = {'x', 'y', 'z'};
             children = new Swizzler().getStrings(arr3, 4);
             for(int i = 0; i < 5; ++i){
@@ -172,7 +177,7 @@ public class CodeDatabase {
                 }
 
             }
-
+            //Add children for vec4
             char[] arr4 = {'x', 'y', 'z', 'w'};
             children = new Swizzler().getStrings(arr4, 4);
             for(int i = 0; i < 5; ++i){
@@ -182,6 +187,10 @@ public class CodeDatabase {
                 }
 
             }
+
+
+
+
 
 
 
@@ -441,26 +450,31 @@ public class CodeDatabase {
         //STRUCTS
 
         userTypes.clear();
+
+        //Pattern to find structs(group 1 is the name, group 2 is everything inside braces)
         p = Pattern.compile("struct[ \n]+(\\w+)[ \n]*[{]([^}]*)[}][ \n]*;");
 
         m = p.matcher(code);
 
         while(m.find()){
+            //Pattern to find member variables of the struct
+            Pattern varPat = Pattern.compile("([\\w]+)[ \n]+([\\w]+)[ \n]*;");
 
-            Pattern varPat = Pattern.compile("([\\w])[ \n]+([\\w])[ \n]*;");
-
+            //Give the group 2 to matcher
             Matcher varMat = varPat.matcher(m.group(2));
 
+            //Create type for the new struct
             GLSLType t = new GLSLType(m.group(1));
-            
+
             while(varMat.find()){
-                variables.remove(getVariable(varMat.group(2)));
                 GLSLType childType = getType(varMat.group(1));
 
-                if(childType != null) continue;
+                //Shouldn't happen, but can't hurt
+                if(childType == null) continue;
 
+                //Add the mamber to struct
                 t.addChild(new Pair<GLSLType, String>(childType, varMat.group(2)));
-                System.out.println(childType + " " + varMat.group(2));
+
             }
 
         userTypes.add(t);

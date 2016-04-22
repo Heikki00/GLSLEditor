@@ -7,6 +7,7 @@ import GLSLEditor.CodeDatabase.GLSLType;
 import GLSLEditor.CodeDatabase.GLSLVariable;
 import GLSLEditor.Document;
 import GLSLEditor.Editor;
+import com.sun.org.apache.bcel.internal.classfile.Code;
 import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
@@ -42,6 +43,8 @@ public class AutoComplete {
     private static String completed;
     private static int cursorPos;
     private static ContextMenu contextMenu;
+    private static Popup tooltip;
+    private static Label tooltopMsg;
     private static Editor editor;
     private static org.fxmisc.richtext.CodeArea codeArea;
 
@@ -101,12 +104,12 @@ public class AutoComplete {
                         s = s.trim();
 
                         if(CodeDatabase.getFunction(s) != null){
-                            System.out.println(s);
+
+
                         }
                     }
                 }
             }
-
 
 
 
@@ -170,14 +173,14 @@ public class AutoComplete {
 
         });
 
-        Popup pop = new Popup();
+        tooltip = new Popup();
 
-        Label popupMsg = new Label();
-        popupMsg.setStyle(
+        tooltopMsg = new Label();
+        tooltopMsg.setStyle(
                 "-fx-background-color: black;" +
                         "-fx-text-fill: white;" +
                         "-fx-padding: 5;");
-        pop.getContent().add(popupMsg);
+        tooltip.getContent().add(tooltopMsg);
 
         codeArea.setMouseOverTextDelay(Duration.ofSeconds(1));
         codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_BEGIN, e -> {
@@ -220,14 +223,14 @@ public class AutoComplete {
             //Get the description for the word
             String desc = getHoverString(word);
 
-            popupMsg.setText(desc);
+            tooltopMsg.setText(desc);
             Point2D pos = e.getScreenPosition();
             //Show the tooltip, if the description is not empty
-            if (!desc.isEmpty()) pop.show(codeArea, pos.getX(), pos.getY() + 10);
+            if (!desc.isEmpty()) tooltip.show(codeArea, pos.getX(), pos.getY() + 10);
         });
 
         codeArea.addEventHandler(MouseOverTextEvent.MOUSE_OVER_TEXT_END, e -> {
-            pop.hide();
+            tooltip.hide();
         });
 
 
@@ -279,6 +282,7 @@ public class AutoComplete {
 
     //Internal function, adds all items to the contex menu.
     private static void addMenuItems(String typed, int spacePos, int cPos){
+
 
         contextMenu.getItems().clear();
 
@@ -411,27 +415,44 @@ public class AutoComplete {
             String beforeDot = typed.substring(0, typed.indexOf('.'));
             String afterDot = typed.substring(typed.indexOf('.') + 1);
 
+
             for(GLSLVariable v : CodeDatabase.defaultVariables){
                 if(beforeDot.equals(v.getName())){
                     for(Pair<GLSLType, String> p : v.getType().getChildren()){
-                        MenuItem m = new MenuItem(p.getValue());
-                        contextMenu.getItems().add(m);
-                    }
+                        if(p.getValue().length() <= afterDot.length() + 1) {
+                            if(CodeDatabase.GLSLvectors.contains(p.getKey().getName()) && !(p.getValue().length() <= afterDot.length() + 1)) continue;
+
+
+                            MenuItem m = new MenuItem(p.getValue());
+                            if(!contextMenuContains(p.getValue())) contextMenu.getItems().add(m);
+
+                        }
+                        }
                 }
             }
 
             for(GLSLVariable v : CodeDatabase.variables){
                 if(beforeDot.equals(v.getName())){
-                    //System.out.println(v.getType().getChildren().size());
+                  //  System.out.println(v.getType().getChildren().size());
+
                     for(Pair<GLSLType, String> p : v.getType().getChildren()){
 
                        if(p.getValue().startsWith(afterDot)) {
+
+                           if(CodeDatabase.GLSLvectors.contains(p.getKey().getName()) && !(p.getValue().length() <= afterDot.length() + 1)) continue;
+
+
+
+
                            MenuItem m = new MenuItem(p.getValue());
 
                            m.setOnAction(e -> codeArea.replaceText(spacePos + typed.indexOf('.') + 2, cPos, p.getValue()));
-                           contextMenu.getItems().add(m);
+
+                           if(!contextMenuContains(p.getValue())) contextMenu.getItems().add(m);
+
                        }
                     }
+
                 }
             }
         }
@@ -584,8 +605,15 @@ public class AutoComplete {
         return src;
     }
 
-
-
+    //Internal function, checks if spesific label is already in contextMenu
+    private static boolean contextMenuContains(String s){
+        for(MenuItem m : contextMenu.getItems()){
+            if(m.getText().equals(s)){
+                return true;
+            }
+        }
+        return false;
+    }
 
 
 
