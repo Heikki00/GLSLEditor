@@ -347,6 +347,38 @@ public class CodeDatabase {
 
         }
 
+        //STRUCTS
+
+        userTypes.clear();
+
+        //Pattern to find structs(group 1 is the name, group 2 is everything inside braces)
+        Pattern p = Pattern.compile("struct[ \n]+(\\w+)[ \n]*[{]([^}]*)[}][ \n]*;");
+
+        Matcher m = p.matcher(code);
+
+        while(m.find()){
+            //Pattern to find member variables of the struct
+            Pattern varPat = Pattern.compile("([\\w]+)[ \n]+([\\w]+)[ \n]*;");
+
+            //Give the group 2 to matcher
+            Matcher varMat = varPat.matcher(m.group(2));
+
+            //Create type for the new struct
+            GLSLType t = new GLSLType(m.group(1));
+
+            while(varMat.find()){
+                GLSLType childType = getType(varMat.group(1));
+
+                //Shouldn't happen, but can't hurt
+                if(childType == null) continue;
+
+                //Add the mamber to struct
+                t.addChild(new Pair<GLSLType, String>(childType, varMat.group(2)));
+
+            }
+
+            userTypes.add(t);
+        }
 
 
         //VARIABLES:
@@ -355,18 +387,13 @@ public class CodeDatabase {
         variables.clear();
 
         //Pattern to find variables
-        Pattern p = Pattern.compile("([a-zA-Z_$][\\w$]*)[ \n]+([a-zA-Z_$][\\w]*)(?:[ \n]*|[ \n]*=.*);");
+        p = Pattern.compile("([a-zA-Z_$][\\w$]*)[ \n]+([a-zA-Z_$][\\w]*)(?:[ \n]*|[ \n]*=.*);");
 
-        Matcher m = p.matcher(code);
+        m = p.matcher(code);
 
         //Loop through varables
         while(m.find()){
 
-            //If the type is incorrect, add error
-            if(getType(m.group(1)) == null){
-                Highlighter.addError(m.start(), m.end());
-                 continue;
-            }
 
             //If there is no curly brace before variable, set infinite scope
             int start = code.lastIndexOf("{", m.start());
@@ -447,38 +474,6 @@ public class CodeDatabase {
 
 
 
-        //STRUCTS
-
-        userTypes.clear();
-
-        //Pattern to find structs(group 1 is the name, group 2 is everything inside braces)
-        p = Pattern.compile("struct[ \n]+(\\w+)[ \n]*[{]([^}]*)[}][ \n]*;");
-
-        m = p.matcher(code);
-
-        while(m.find()){
-            //Pattern to find member variables of the struct
-            Pattern varPat = Pattern.compile("([\\w]+)[ \n]+([\\w]+)[ \n]*;");
-
-            //Give the group 2 to matcher
-            Matcher varMat = varPat.matcher(m.group(2));
-
-            //Create type for the new struct
-            GLSLType t = new GLSLType(m.group(1));
-
-            while(varMat.find()){
-                GLSLType childType = getType(varMat.group(1));
-
-                //Shouldn't happen, but can't hurt
-                if(childType == null) continue;
-
-                //Add the mamber to struct
-                t.addChild(new Pair<GLSLType, String>(childType, varMat.group(2)));
-
-            }
-
-        userTypes.add(t);
-        }
 
     }
 

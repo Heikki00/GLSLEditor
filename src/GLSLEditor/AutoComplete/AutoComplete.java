@@ -82,12 +82,26 @@ public class AutoComplete {
 
 
                 }
+            int typedStart = spacePos;
 
             //What has been typed so far
             String typed = build.substring(spacePos == 0 ? 0 : spacePos + 1, cPos);
+            if(typed.contains("(")){
+                if(typed.indexOf("(") + spacePos < cursorPos){
+                    typed = typed.substring(typed.indexOf("(") + 1);
+                    typedStart = spacePos + typed.indexOf("(");
+
+                }
+                else
+                    typed = typed.substring(0, typed.indexOf("("));
 
 
-            addMenuItems(typed, spacePos, cPos);
+
+            }
+
+
+            System.out.println(typed);
+            addMenuItems(typed, typedStart, cPos);
 
 
             String tillCursor = build.substring(0, cursorPos);
@@ -243,6 +257,10 @@ public class AutoComplete {
         //If the word is variable, show the type and the name
         if(CodeDatabase.getVariable(word) != null){
             GLSLVariable v = CodeDatabase.getVariable(word);
+
+            //Some error-checking
+            if(v.getType() == null) return "ERROR_TYPE " + v.getName();
+
             return v.getType().getName() + " " + v.getName();
 
         }
@@ -281,7 +299,7 @@ public class AutoComplete {
     }
 
     //Internal function, adds all items to the contex menu.
-    private static void addMenuItems(String typed, int spacePos, int cPos){
+    private static void addMenuItems(String typed, int typedStart, int cPos){
 
 
         contextMenu.getItems().clear();
@@ -298,7 +316,7 @@ public class AutoComplete {
 
                 //Create menuitem and set action to replace the text with the name
                 MenuItem m = new MenuItem(t.getName());
-                Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                Integer start = typedStart == 0 ? 0 : typedStart + 1;
                 Integer end = cPos;
                 m.setOnAction(e -> codeArea.replaceText(start, end, t.getName()));
                 contextMenu.getItems().add(m);
@@ -316,7 +334,7 @@ public class AutoComplete {
 
                 //Create menuitem and set action to replace the text with the name
                 MenuItem m = new MenuItem(t.getName());
-                Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                Integer start = typedStart == 0 ? 0 : typedStart + 1;
                 Integer end = cPos;
                 m.setOnAction(e -> codeArea.replaceText(start, end, t.getName()));
                 contextMenu.getItems().add(m);
@@ -337,7 +355,7 @@ public class AutoComplete {
 
                 //Create menuitem and set action to replace the text with the name
                 MenuItem m = new MenuItem(v.getName());
-                Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                Integer start = typedStart == 0 ? 0 : typedStart + 1;
                 Integer end = cPos;
                 m.setOnAction(e -> codeArea.replaceText(start, end, v.getName()));
                 contextMenu.getItems().add(m);
@@ -360,7 +378,7 @@ public class AutoComplete {
 
                 //Create menuitem and set action to replace the text with the name
                 MenuItem m = new MenuItem(v.getName());
-                Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                Integer start = typedStart == 0 ? 0 : typedStart + 1;
                 Integer end = cPos;
                 m.setOnAction(e -> codeArea.replaceText(start, end, v.getName()));
                 contextMenu.getItems().add(m);
@@ -380,7 +398,7 @@ public class AutoComplete {
 
                 //Create menuitem and set action to replace the text with the name
                 MenuItem m = new MenuItem(f.getName());
-                Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                Integer start = typedStart == 0 ? 0 : typedStart + 1;
                 Integer end = cPos;
                 m.setOnAction(e -> codeArea.replaceText(start, end, f.getName()));
                 contextMenu.getItems().add(m);
@@ -400,7 +418,7 @@ public class AutoComplete {
 
                 //Create menuitem and set action to replace the text with the name
                 MenuItem m = new MenuItem(f.getName());
-                Integer start = spacePos == 0 ? 0 : spacePos + 1;
+                Integer start = typedStart == 0 ? 0 : typedStart + 1;
                 Integer end = cPos;
                 m.setOnAction(e -> codeArea.replaceText(start, end, f.getName()));
                 contextMenu.getItems().add(m);
@@ -433,24 +451,24 @@ public class AutoComplete {
 
             for(GLSLVariable v : CodeDatabase.variables){
                 if(beforeDot.equals(v.getName())){
-                  //  System.out.println(v.getType().getChildren().size());
 
                     for(Pair<GLSLType, String> p : v.getType().getChildren()){
 
                        if(p.getValue().startsWith(afterDot)) {
 
-                           if(CodeDatabase.GLSLvectors.contains(p.getKey().getName()) && !(p.getValue().length() <= afterDot.length() + 1)) continue;
-
+                           //Skip all vector children that are more than 1 character longer than what the user has typed(because there is a lot of them!)
+                           if(CodeDatabase.GLSLvectors.contains(v.getType().getName()) && !(p.getValue().length() <= afterDot.length() + 1)) continue;
 
 
 
                            MenuItem m = new MenuItem(p.getValue());
 
-                           m.setOnAction(e -> codeArea.replaceText(spacePos + typed.indexOf('.') + 2, cPos, p.getValue()));
+                           m.setOnAction(e -> codeArea.replaceText(typedStart + typed.indexOf('.') + 2, cPos, p.getValue()));
 
                            if(!contextMenuContains(p.getValue())) contextMenu.getItems().add(m);
 
                        }
+
                     }
 
                 }
