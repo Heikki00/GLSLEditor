@@ -8,10 +8,13 @@ import GLSLEditor.Highlighting.Highlighter;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.IndexRange;
+import javafx.scene.input.KeyCode;
 import javafx.scene.web.HTMLEditor;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.TwoDimensional;
 
+import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.*;
 
 //Class that represents the editor area. Handles updating everything when the code changes, and might modify the text(replacing tabs etc.)
@@ -52,6 +55,23 @@ public class CodeArea {
         area.setEditable(false);
 
 
+            //It's stupid, but if it works, it's not stupid. Basically, if user presses AltGr(For braces), quicly press alt afterwards.
+            area.setOnKeyReleased(e->{
+                if(e.getCode() == KeyCode.ALT_GRAPH){
+                    Robot r = null;
+
+                    try {
+                        r = new Robot();
+                    } catch (AWTException e1) {
+                        e1.printStackTrace();
+                    }
+
+                    r.keyPress(KeyEvent.VK_ALT);
+                    r.keyRelease(KeyEvent.VK_ALT);
+                }
+
+
+            });
         
 
 

@@ -17,7 +17,7 @@ public class CodeDatabase {
 
     private static Editor editor;
 
-    public static Set<String> GLSLscalars, GLSLalgebraTypes, GLSLvectors, GLSLMatrices, GLSLKeywords, GLSLPreprocessor;
+    public static Set<String> GLSLscalars, GLSLalgebraTypes, GLSLvectors, GLSLMatrices, GLSLKeywords, GLSLPreprocessor, GLSLSamplers;
 
     public static Set<GLSLVariable> defaultVariables;
 
@@ -43,6 +43,7 @@ public class CodeDatabase {
         GLSLMatrices = new HashSet<>();
         defaultFunctions = new HashSet<>();
         GLSLPreprocessor = new HashSet<>();
+        GLSLSamplers = new HashSet<>();
 
         variableTypes = new HashSet<>();
         userTypes = new HashSet<>();
@@ -60,6 +61,18 @@ public class CodeDatabase {
 
         //Add the basic preprocessor commands
         Collections.addAll(GLSLPreprocessor, "#include", "#version", "#line", "#define", "#undef", "#if", "#ifdef", "#ifndef", "#else", "elif", "#endif");
+
+
+        //First add all samplers to temp list, then copy them to the real one with all possible data types
+        HashSet<String> tempSamplerSet = new HashSet<>();
+        Collections.addAll(tempSamplerSet, "sampler1D", "sampler2D", "sampler3D", "samplerCube", "sampler2DRect", "sampler1DArray", "sampler2DArray", "samplerCubeArray",
+                "samplerBuffer", "sampler2DMS", "sampler2DMSArray");
+
+        for(String s : tempSamplerSet){
+            GLSLSamplers.add(s);
+            GLSLSamplers.add("i" + s);
+            GLSLSamplers.add("u" + s);
+        }
 
         //Add matrices and vectors of all dimensions and data types
         for(int i = 2; i <= 4; ++i){
@@ -102,6 +115,16 @@ public class CodeDatabase {
 
         }
 
+
+        //SAMPLERS
+
+        {
+            for(String s : GLSLSamplers){
+                variableTypes.add(new GLSLType(s));
+            }
+
+
+        }
 
 
         //VECTORS

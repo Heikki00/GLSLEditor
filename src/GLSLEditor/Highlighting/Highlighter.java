@@ -30,7 +30,9 @@ public class Highlighter {
     private static String COMMENT_PATTERN = "(//[^\n]*)|(/\\*.*\\*/)";
     private static String KEYWORD_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLKeywords) + ")\\b";
     private static String PREPROCESSOR_PATTERN = "[ \n]*(" + String.join("|", CodeDatabase.GLSLPreprocessor) + "\\w+)";
-
+    private static String NUMBER_PATTERN = "\\b([1-9.]+)\\b";
+    private static String STRING_PATTERN = "(\"[^\"]*\")";
+    private static String SAMPLER_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLSamplers) + ")\\b";
 
     private static List<Range> errors = new ArrayList<>();
 
@@ -58,8 +60,11 @@ public class Highlighter {
                                                   matcher.group("VARIABLE") != null ? "variable" :
                                                        matcher.group("DEFAULTVARIABLE") != null ? "defaultvariable" :
                                                             matcher.group("DEFAULTFUNCTION") != null ? "defaultfunction" :
-                                                                     matcher.group("FUNCTION") != null ? "function" :
-                                                                             matcher.group("USERTYPES") != null ? "usertypes" :
+                                                                    matcher.group("NUMBER") != null ? "number" :
+                                                                            matcher.group("SAMPLER") != null ? "sampler" :
+                                                                                matcher.group("STRING") != null ? "string" :
+                                                                                    matcher.group("FUNCTION") != null ? "function" :
+                                                                                        matcher.group("USERTYPES") != null ? "usertypes" :
                     "";
 
 
@@ -135,6 +140,9 @@ public class Highlighter {
                 + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
                 + "|(?<KEYWORD>" + KEYWORD_PATTERN + ")"
                 + "|(?<PREPROCESSOR>" + PREPROCESSOR_PATTERN + ")"
+                + "|(?<NUMBER>" + NUMBER_PATTERN + ")"
+                + "|(?<STRING>" + STRING_PATTERN + ")"
+                + "|(?<SAMPLER>" + SAMPLER_PATTERN + ")"
                 + "|(?<DEFAULTVARIABLE>" + "\\b(" + String.join("|", defvariableNames) + ")\\b" + ")"
                 + "|(?<DEFAULTFUNCTION>" + "\\b(" + String.join("|", defaultFunctions) + ")\\b" + ")";
 

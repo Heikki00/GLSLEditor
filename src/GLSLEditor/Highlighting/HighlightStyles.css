@@ -49,3 +49,15 @@
 .usertypes{
      -fx-fill: #beaa70;
 }
+
+.number{
+-fx-fill: #bf1010;
+}
+
+.string{
+-fx-fill: #67827f;
+}
+
+.sampler{
+-fx-fill: #b98884;
+}

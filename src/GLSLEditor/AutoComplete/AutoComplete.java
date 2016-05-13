@@ -69,10 +69,10 @@ public class AutoComplete {
         }
 
         //If the user typed a character
-        if (newVal.charAt(cPos - 1) != ' ' && newVal.charAt(cPos - 1) != '\n') {
+        if (newVal.charAt(cursorPos - 1) != ' ' && newVal.charAt(cursorPos - 1) != '\n') {
 
                 //Find first space, or start of the document
-                int spacePos = cPos - 1;
+                int spacePos = cursorPos - 1;
                 while(newVal.charAt(spacePos) != ' '&& newVal.charAt(spacePos) != '\n'){
                     if(spacePos == 0){
                         break;
@@ -85,11 +85,12 @@ public class AutoComplete {
             int typedStart = spacePos;
 
             //What has been typed so far
-            String typed = build.substring(spacePos == 0 ? 0 : spacePos + 1, cPos);
+            String typed = build.substring(spacePos == 0 ? 0 : spacePos + 1, cursorPos);
             if(typed.contains("(")){
                 if(typed.indexOf("(") + spacePos < cursorPos){
-                    typed = typed.substring(typed.indexOf("(") + 1);
                     typedStart = spacePos + typed.indexOf("(");
+                    typed = typed.substring(typed.indexOf("(") + 1);
+
 
                 }
                 else
@@ -100,8 +101,8 @@ public class AutoComplete {
             }
 
 
-            System.out.println(typed);
-            addMenuItems(typed, typedStart, cPos);
+
+            addMenuItems(typed, typedStart, cursorPos);
 
 
             String tillCursor = build.substring(0, cursorPos);
@@ -400,6 +401,7 @@ public class AutoComplete {
                 MenuItem m = new MenuItem(f.getName());
                 Integer start = typedStart == 0 ? 0 : typedStart + 1;
                 Integer end = cPos;
+
                 m.setOnAction(e -> codeArea.replaceText(start, end, f.getName()));
                 contextMenu.getItems().add(m);
 
@@ -495,29 +497,17 @@ public class AutoComplete {
     }
 
     private static void completeBracesEtc(StringBuilder build){
-        char open[] = {'(', '{', '['};
-        char close[] = {')', '}', ']'};
+        if(build.charAt(cursorPos - 1) == '('){
 
-        //Loop through autocomplitable characters
-        for(int i = 0; i < 3; ++i){
-
-            //If the opening char was the input and the last charater, just add the closing char
-            if(build.charAt(cursorPos - 1) == open[i] && cursorPos == build.length()) build.insert(cursorPos, close[i]);
-
-            //If opening char was inputted
-            if (build.charAt(cursorPos - 1) == open[i])
-                //If char after opening is space, line end or any other permitted character
-                if (build.charAt(cursorPos) == ' ' || build.charAt(cursorPos) == '\n' ||
-                        build.charAt(cursorPos) == close[i == 0 ? 1 : i == 1 ? 2 : 0] || build.charAt(cursorPos) == close[i == 0 ? 2 : i == 1 ? 0 : 1] ||
-                        build.charAt(cursorPos) == open[i == 0 ? 1 : i == 1 ? 2 : 0] || build.charAt(cursorPos) == open[i == 0 ? 2 : i == 1 ? 0 : 1])
-                    build.insert(cursorPos, close[i]);
-
-
-
-
+                build.insert(cursorPos, ')');
 
         }
+        if(build.charAt(cursorPos - 1) == ')'){
+            if(build.length() > cursorPos && build.charAt(cursorPos) == ')') {
 
+                build.deleteCharAt(cursorPos - 1);
+            }
+        }
 
 
     }
@@ -580,7 +570,7 @@ public class AutoComplete {
             try {
                 filename = src.substring(firstQ + 1, lastQ);
             } catch (Exception e) {
-                System.out.println("F:" + firstQ + "     L:" + lastQ);
+
                 e.printStackTrace();
 
             }
