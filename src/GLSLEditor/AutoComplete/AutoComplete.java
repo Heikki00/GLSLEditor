@@ -269,7 +269,7 @@ public class AutoComplete {
         //If the word is function, show return type, name, parameter typas and names
         else  if(CodeDatabase.getFunction(word) != null){
             GLSLFunction v = CodeDatabase.getFunction(word);
-            String res = ( v.getReturnType() == null ? "void" : v.getReturnType().getName()) + " " + v.getName() + "(";
+            String res = ( v.getReturnType(0) == null ? "void" : v.getReturnType(0).getName()) + " " + v.getName() + "(";
 
             //Add the parameters to the result
            boolean first = true;

@@ -276,24 +276,29 @@ public class CodeDatabase {
         }
 
         //Pattern to find functions
-       Pattern p = Pattern.compile("([a-zA-Z_$][\\w$]*)[ \n]+([a-zA-Z_$][\\w]*)[(]([^(;]*)[)][\n]+");
+       Pattern p = Pattern.compile("([a-zA-Z_$][\\w$]*)[ \n]+([a-zA-Z_$][\\w]*)[(]([^(;]*)[)]([0-9]+)[\n]+");
 
 
 
         Matcher m = p.matcher(defaultFunctions);
 
+        //Are we parsing texture functions?
+        boolean textures = false;
+
+        ArrayList<String> notReadyVariables = new ArrayList<>();
+        Collections.addAll(notReadyVariables, "gvec2", "gve3", "gvec4", "gsampler1D", "gsampler2D", "gsampler3D", "gsamplerCube");
+
         //Loop functions
         while(m.find()){
 
-            //Split parameters by commas
-            String[] parameters = m.group(3).split(",");
+
 
             GLSLFunction f = null;
-
+            if(m.group(2).equals("TEXTURESTART")) textures = true;
             //Is the function a new function or just an overload
             boolean isNew = true;
             for(GLSLFunction func : CodeDatabase.defaultFunctions){
-                if(func.getName().equals(m.group(1))){
+                if(func.getName().equals(m.group(2))){
                     isNew = false;
                     f = func;
                     break;
@@ -301,37 +306,128 @@ public class CodeDatabase {
 
             }
 
+            if(!textures) {
 
-            //Create a new GLSLFunction
-            if(isNew) {
-                f = new GLSLFunction(getType(m.group(1)), m.group(2));
+
+
+                //Create a new GLSLFunction
+                if (isNew) {
+                    f = new GLSLFunction(getType(m.group(1)), m.group(2), Integer.parseInt(m.group(4)));
+                }
+
+                //Split parameters by commas
+                String[] parameters = m.group(3).split(",");
+
+                //Parameters of this function
+                ArrayList<Pair<GLSLType, String>> paraList = new ArrayList<>();
+
+                //Loop through parameters
+                for (int i = 0; i < parameters.length; i++) {
+                    parameters[i] = parameters[i].trim();
+
+                    int spacePos = parameters[i].indexOf(' ');
+
+                    //If the writing is still in progress or some shit
+                    if (spacePos == -1) continue;
+
+                    //Type and name of the parameter
+                    String typeString = parameters[i].substring(0, spacePos);
+                    String nameString = parameters[i].substring(typeString.length());
+
+                    paraList.add(new Pair<GLSLType, String>(getType(typeString), nameString));
+
+                }
+
+                //Add the overload
+                f.addOverload(paraList);
+
+                //add the function
+                CodeDatabase.defaultFunctions.add(f);
             }
 
-            //Parameters of this function
-            ArrayList<Pair<GLSLType, String>> paraList = new ArrayList<>();
+            else{
+                if(m.group(2).equals("TEXTURESTART")) continue;
 
-            //Loop through parameters
-            for(int i = 0; i < parameters.length; i++){
-                parameters[i] = parameters[i].trim();
 
-                int spacePos = parameters[i].indexOf(' ');
 
-                //If the writing is still in progress or some shit
-                if(spacePos == -1) continue;
 
-                //Type and name of the parameter
-                String typeString = parameters[i].substring(0, spacePos);
-                String nameString = parameters[i].substring(typeString.length());
+                ArrayList<String> readyFunctions = new ArrayList<>();
+                char preFixes[] = {'i', 'u', ' '};
 
-                paraList.add(new Pair<GLSLType, String>(getType(typeString), nameString));
+
+
+                for(int i = 0; i < 3; ++i) {
+                    String func = m.group(0);
+                    for (String s : notReadyVariables) {
+                        if (func.contains(s)) {
+
+                            func = func.replace(s, preFixes[i] == ' ' ? s.substring(1) : preFixes[i] + s.substring(1));
+
+                        }
+                    }
+                    if(!func.equals(m.group(0))){
+                        readyFunctions.add(func);
+                    }
+
+
+                }
+                if(readyFunctions.isEmpty()) readyFunctions.add(m.group(0));
+
+                Matcher tempMatch = p.matcher(String.join("\n", readyFunctions));
+
+                while(tempMatch.find()){
+                    System.out.println(tempMatch.group(2));
+                    //Create a new GLSLFunction
+                    for (GLSLFunction function : CodeDatabase.defaultFunctions){
+
+                        if(tempMatch.group(2).equals(function.getName())){
+                           isNew = false;
+                        }
+                    }
+
+                    if(isNew) f = new GLSLFunction(getType(tempMatch.group(1)), tempMatch.group(2), Integer.parseInt(tempMatch.group(4)));
+
+                    //Parameters of this function
+                    ArrayList<Pair<GLSLType, String>> paraList = new ArrayList<>();
+
+                    //Split parameters by commas
+                    String[] parameters = tempMatch.group(3).split(",");
+
+                    //Loop through parameters
+                    for (int i = 0; i < parameters.length; i++) {
+                        parameters[i] = parameters[i].trim();
+
+                        int spacePos = parameters[i].indexOf(' ');
+
+                        //If the writing is still in progress or some shit
+                        if (spacePos == -1) continue;
+
+                        //Type and name of the parameter
+                        String typeString = parameters[i].substring(0, spacePos);
+                        String nameString = parameters[i].substring(typeString.length());
+
+                        paraList.add(new Pair<GLSLType, String>(getType(typeString), nameString));
+                        System.out.println(typeString);
+                    }
+
+                    //Add the overload
+                    f.addOverload(paraList);
+                    f.addReturnType(getType(tempMatch.group(1)));
+                    //add the function
+                    CodeDatabase.defaultFunctions.add(f);
+
+
+
+
+
+                }
+
+
+
+
+
 
             }
-
-            //Add the overload
-            f.addOverload(paraList);
-
-            //add the function
-            CodeDatabase.defaultFunctions.add(f);
 
         }
 
@@ -463,7 +559,7 @@ public class CodeDatabase {
             }
 
             if(isNew) {
-                f = new GLSLFunction(getType(m.group(1)), m.group(2));
+                f = new GLSLFunction(getType(m.group(1)), m.group(2), Integer.parseInt(m.group(4)));
             }
 
             //List of parameters
@@ -518,7 +614,7 @@ public class CodeDatabase {
         return null;
     }
 
-    //Returns the GLSLFunction that maches the name. Works for user-defined and default functions. Returns null if the type is not found
+    //Returns the GLSLFunction that matches the name. Works for user-defined and default functions. Returns null if the type is not found
     public static GLSLFunction getFunction(String name){
         for(GLSLFunction f : functions){
             if(f.getName().equals(name)) return f;
@@ -531,7 +627,7 @@ public class CodeDatabase {
         return null;
     }
 
-    //Returns the GLSLSVariable that maches to the type. Works for user-defined variables and default variables. Returns void if the variable is not found. If there is multiple
+    //Returns the GLSLSVariable that matches to the type. Works for user-defined variables and default variables. Returns void if the variable is not found. If there is multiple
     //variables with the same name, returns the first user-defined one.
     public static GLSLVariable getVariable(String name){
         for(GLSLVariable v : variables){
@@ -548,6 +644,47 @@ public class CodeDatabase {
     }
 
 
+    public static void saveRankings(){
+        String defaultFunctionsString = "";
+        try {
+            File file = new File(CodeDatabase.class.getResource("DefaultFunctions").getFile());
+            defaultFunctionsString = new String(Files.readAllBytes(file.toPath()));
+            defaultFunctionsString = (defaultFunctionsString.replace("\r", ""));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        for(GLSLFunction f : CodeDatabase.defaultFunctions){
+
+            String functionString = ( f.getReturnType(0) == null ? "void" : f.getReturnType(0).getName()) + " " + f.getName() + "(";
+
+            //Add the parameters to the result
+            boolean first = true;
+            for(Pair<GLSLType, String> par : f.getParameters(0)){
+                if(!first) functionString += ", ";
+                if(first) first = false;
+
+                functionString += par.getKey().getName() + par.getValue();
+
+
+            }
+
+            functionString += ")";
+
+
+            int ind = defaultFunctionsString.indexOf(functionString);
+            
+
+
+
+
+
+
+        }
+
+    }
 
 
 

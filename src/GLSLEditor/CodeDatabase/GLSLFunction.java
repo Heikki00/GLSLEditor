@@ -12,27 +12,30 @@ import java.util.List;
 public class GLSLFunction {
 
 
-    private GLSLType returnType;
+    private List<GLSLType> returnTypes;
     private List<List<Pair<GLSLType, String>>> parameters;
     private String name;
+    private int ranking;
 
     //null == void
-    public GLSLFunction(GLSLType returnType, String name, Pair<GLSLType, String> ... parameters) {
-        this.returnType = returnType;
+    public GLSLFunction(GLSLType returnType, String name, int ranking, Pair<GLSLType, String> ... parameters) {
+        this.returnTypes = new ArrayList<>();
+        this.returnTypes.add(returnType);
         this.parameters  = new ArrayList<>();
         if(!Arrays.asList(parameters).isEmpty()) this.parameters.add(Arrays.asList(parameters));
         this.name = name;
     }
 
-    public GLSLFunction(GLSLType returnType, String name, List<Pair<GLSLType, String>> parameters) {
-        this.returnType = returnType;
+    public GLSLFunction(GLSLType returnType, String name, int ranking, List<Pair<GLSLType, String>> parameters) {
+        this.returnTypes = new ArrayList<>();
+        this.returnTypes.add(returnType);
         this.parameters  = new ArrayList<>();
         this.parameters.add(parameters);
         this.name = name;
     }
 
-    public GLSLType getReturnType() {
-        return returnType;
+    public GLSLType getReturnType(int overload) {
+        return returnTypes.get(overload);
     }
 
     public List<Pair<GLSLType, String>> getParameters(int overload) {
@@ -51,7 +54,14 @@ public class GLSLFunction {
         this.parameters.add(parameters);
     }
 
+    public void addReturnType(GLSLType type){returnTypes.add(type);}
+
     public String getName() {
         return name;
     }
+
+    public int getRanking(){return ranking;}
+
+    public void increaseRanking(){ranking++;}
+
 }

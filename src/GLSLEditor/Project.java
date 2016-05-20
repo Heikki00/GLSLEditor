@@ -300,7 +300,7 @@ public class Project {
     public String getStageParsed(String stage){
         Document doc = documents.get(stage);
         if(doc == null) return "";
-        return AutoComplete.getDocumentParsed(doc, workFolder);
+        return AutoComplete.getDocumentParsed(doc, workFolder + "/");
     }
 
 

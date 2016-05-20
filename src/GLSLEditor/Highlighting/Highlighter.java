@@ -30,7 +30,7 @@ public class Highlighter {
     private static String COMMENT_PATTERN = "(//[^\n]*)|(/\\*.*\\*/)";
     private static String KEYWORD_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLKeywords) + ")\\b";
     private static String PREPROCESSOR_PATTERN = "[ \n]*(" + String.join("|", CodeDatabase.GLSLPreprocessor) + "\\w+)";
-    private static String NUMBER_PATTERN = "\\b([1-9.]+)\\b";
+    private static String NUMBER_PATTERN = "\\b([0-9.]+)\\b";
     private static String STRING_PATTERN = "(\"[^\"]*\")";
     private static String SAMPLER_PATTERN = "\\b(" + String.join("|", CodeDatabase.GLSLSamplers) + ")\\b";
 
