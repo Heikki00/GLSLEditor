@@ -9,6 +9,6 @@ menuCompile F5 menuCompile
 
 
 <defFolder>
-defFolderProperty user.home
-defFolder null
+defFolderProperty null
+defFolder C:/Users/Heikki/Documents/Visual Studio 2015/Projects/FestusEngine/2DGame/Resources
 </defFolder>

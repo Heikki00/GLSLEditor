@@ -33,7 +33,7 @@ public class Options {
 
             //Read the file
             try {
-                File file = new File(Options.class.getResource(optionsFile).getFile());
+                File file = Editor.getFile(Options.class, optionsFile);
                 text = new String(Files.readAllBytes(file.toPath()));
                 text = (text.replace("\r", ""));
 

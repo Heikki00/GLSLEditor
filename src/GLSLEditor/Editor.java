@@ -422,6 +422,12 @@ public class Editor extends Application{
     }
 
 
+    public static File getFile(Class c, String file){
 
+
+       // File f = new File(c.getResource(file).getPath().substring(6));
+        File f = new File(file);
+        return f;
+    }
 
 }

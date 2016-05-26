@@ -267,7 +267,8 @@ public class CodeDatabase {
         //Read the file
         String defaultFunctions = "";
         try {
-            File file = new File(CodeDatabase.class.getResource("DefaultFunctions").getFile());
+            File file = Editor.getFile(CodeDatabase.class, "DefaultFunctions.txt");
+
             defaultFunctions = new String(Files.readAllBytes(file.toPath()));
             defaultFunctions = (defaultFunctions.replace("\r", ""));
 
@@ -376,7 +377,7 @@ public class CodeDatabase {
                 Matcher tempMatch = p.matcher(String.join("\n", readyFunctions));
 
                 while(tempMatch.find()){
-                    System.out.println(tempMatch.group(2));
+
                     //Create a new GLSLFunction
                     for (GLSLFunction function : CodeDatabase.defaultFunctions){
 
@@ -407,7 +408,7 @@ public class CodeDatabase {
                         String nameString = parameters[i].substring(typeString.length());
 
                         paraList.add(new Pair<GLSLType, String>(getType(typeString), nameString));
-                        System.out.println(typeString);
+
                     }
 
                     //Add the overload
@@ -559,7 +560,7 @@ public class CodeDatabase {
             }
 
             if(isNew) {
-                f = new GLSLFunction(getType(m.group(1)), m.group(2), Integer.parseInt(m.group(4)));
+                f = new GLSLFunction(getType(m.group(1)), m.group(2), 0);
             }
 
             //List of parameters
@@ -647,7 +648,8 @@ public class CodeDatabase {
     public static void saveRankings(){
         String defaultFunctionsString = "";
         try {
-            File file = new File(CodeDatabase.class.getResource("DefaultFunctions").getFile());
+            File file = Editor.getFile(CodeDatabase.class, "DefaultFunctions.txt");
+
             defaultFunctionsString = new String(Files.readAllBytes(file.toPath()));
             defaultFunctionsString = (defaultFunctionsString.replace("\r", ""));
 
